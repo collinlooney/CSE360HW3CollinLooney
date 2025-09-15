@@ -1,27 +1,47 @@
 package application;
+import application.Role;
+import java.util.list;
 
 /**
  * The User class represents a user entity in the system.
- * It contains the user's details such as userName, password, and role.
+ * It contains the user's details such as userName, 
+ * name, email, password, and roles.
  */
 public class User {
-    private String userName;
-    private String password;
-    private String role;
 
-    // Constructor to initialize a new User object with userName, password, and role.
-    public User( String userName, String password, String role) {
+    // userName is used when signing in and as a key in storage
+    private String userName;
+    private String name;
+    private Strine email;
+    private String password;
+    private List<Role> roles;
+
+    // Constructor to initialize a new User object with 
+    // userName, name, email, password, and roles.
+    public User(
+        String userName,
+        String name,
+        String email,
+        String password,
+        List<Role> roles
+    ) {
         this.userName = userName;
+        this.name = name;
+        this.email = email;
         this.password = password;
-        this.role = role;
+        this.roles = roles;
     }
     
-    // Sets the role of the user.
-    public void setRole(String role) {
-    	this.role=role;
+    // Sets the roles of the user.
+    public void setRoles(List<Role> roles) {
+        this.roles = roles;
     }
 
     public String getUserName() { return userName; }
     public String getPassword() { return password; }
-    public String getRole() { return role; }
+    public List<Role> getRoles() { return roles; }
+
+    public void ViewHomeScreen(Role role) {
+        // todo
+    }
 }
