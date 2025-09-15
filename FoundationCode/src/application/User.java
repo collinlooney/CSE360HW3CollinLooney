@@ -36,8 +36,39 @@ public class User {
         this.roles = roles;
     }
 
+    // Helper methods for converting Roles to/from storage format
+    // Converts roles to storage format "1,2,3"
+    public String rolesToString() {
+        if (roles == null || roles.isEmpty()) {
+            return "";
+        }
+        String res = "";
+        for (int i = 0; i < roles.size(); i++) {
+            result += roles.get(i).toInt();
+            if (i < roles.size() - 1) {
+                result += ",";
+            }
+        }
+        return res;
+    }
+
+    // Convert from DB storage form of roles ("1,2,3") to List<Role>
+    public static ArrayList<Role> rolesFromString(String s) {
+        ArrayList<Role> roles = new ArrayList<>();
+
+        String[] ps = s.split(",");
+        for (int i = 0; i < ps.length; i++) {
+            int code = Integer.parseInt(ps[i].trim());
+            roles.add(Role.fromInt(code));
+        }
+
+        return roles;
+    }
+
     public String getUserName() { return userName; }
     public String getPassword() { return password; }
+    public String getName() { return name; }
+    public String getEmail() { return email; }
     public List<Role> getRoles() { return roles; }
 
     public void ViewHomeScreen(Role role) {

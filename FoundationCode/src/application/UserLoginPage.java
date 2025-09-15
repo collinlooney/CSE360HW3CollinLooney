@@ -27,6 +27,14 @@ public class UserLoginPage {
         userNameField.setPromptText("Enter userName");
         userNameField.setMaxWidth(250);
 
+        // TextField nameField = new TextField();
+        // nameField.setPromptText("Enter name");
+        // nameField.setMaxWidth(250);
+        //
+        // TextField emailField = new TextField();
+        // emailField.setPromptText("Enter email");
+        // emailField.setMaxWidth(250);
+
         PasswordField passwordField = new PasswordField();
         passwordField.setPromptText("Enter Password");
         passwordField.setMaxWidth(250);
@@ -41,15 +49,16 @@ public class UserLoginPage {
         loginButton.setOnAction(a -> {
         	// Retrieve user inputs
             String userName = userNameField.getText();
+            // String name = nameField.getText();
+            // String email = emailField.getText();
             String password = passwordField.getText();
-            // ADD
             // Validate userName input
             String usernameErrMsg = UserNameRecognizer.checkForValidUserName(userName);
             // Validate password input
             String passwordErrMsg = PasswordRecognizer.evaluatePassword(password);
             
             // Construct multi-line error message to indicate if
-            // username and/or password are invalid
+            // username/password are invalid
             String errMsg = usernameErrMsg + passwordErrMsg;
             
             if (!errMsg.isEmpty()) {
@@ -57,7 +66,7 @@ public class UserLoginPage {
             	errorLabel.setText(errMsg);
 			} else {
 				try {
-					User user = new User(userName, password, "");
+					User user = new User(userName, "", "", password, new ArrayList<>());
 					WelcomeLoginPage welcomeLoginPage = new WelcomeLoginPage(databaseHelper);
 
 					// Retrieve the user's role from the database using userName
