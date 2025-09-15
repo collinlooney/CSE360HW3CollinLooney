@@ -62,10 +62,11 @@ public class DatabaseHelper {
 				+ "roles VARCHAR(20))";
 		statement.execute(userTable);
 		
-		// Create the invitation codes table
+		// Create the invitation codes table including expiration
 	    String invitationCodesTable = "CREATE TABLE IF NOT EXISTS InvitationCodes ("
 	            + "code VARCHAR(10) PRIMARY KEY, "
-	            + "isUsed BOOLEAN DEFAULT FALSE)";
+	            + "isUsed BOOLEAN DEFAULT FALSE, "
+		    + "expiration BIGINT)";
 	    statement.execute(invitationCodesTable);
 	}
 
@@ -176,13 +177,19 @@ public class DatabaseHelper {
 	    return null;
 	}
 	
-	// Generates a new invitation code and inserts it into the database.
+	// Generates a new invitation code and inserts it into the database,
+	// including a 10day expiration (as seconds since UNIX epoch)
 	public String generateInvitationCode() {
 	    String code = UUID.randomUUID().toString().substring(0, 4); // Generate a random 4-character code
-	    String query = "INSERT INTO InvitationCodes (code) VALUES (?)";
+	    // Current time in seconds since UNIX epoch
+	    long now = System.currentTimeMillis() / 1000;
+	    // 10 days from now
+	    long expiration = now + (10L * 24 * 60 * 60);
+	    String query = "INSERT INTO InvitationCodes (code, expiration) VALUES (?, ?)";
 
 	    try (PreparedStatement pstmt = connection.prepareStatement(query)) {
 	        pstmt.setString(1, code);
+		pstmt.setLong(2, expiration);
 	        pstmt.executeUpdate();
 	    } catch (SQLException e) {
 	        e.printStackTrace();
@@ -191,16 +198,24 @@ public class DatabaseHelper {
 	    return code;
 	}
 	
-	// Validates an invitation code to check if it is unused.
+	// Validates an invitation code to check if it is unused and not expired
 	public boolean validateInvitationCode(String code) {
 	    String query = "SELECT * FROM InvitationCodes WHERE code = ? AND isUsed = FALSE";
 	    try (PreparedStatement pstmt = connection.prepareStatement(query)) {
 	        pstmt.setString(1, code);
 	        ResultSet rs = pstmt.executeQuery();
 	        if (rs.next()) {
-	            // Mark the code as used
-	            markInvitationCodeAsUsed(code);
-	            return true;
+			long expiration = rs.getLong("expiration");
+			long now = System.currentTimeMillis() / 1000;
+
+			if (now <= expiration) {
+				// Mark the code as used
+				markInvitationCodeAsUsed(code);
+				return true;
+			} else {
+				System.out.println("Invitation code expired");
+			}
+
 	        }
 	    } catch (SQLException e) {
 	        e.printStackTrace();
