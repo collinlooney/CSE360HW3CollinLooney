@@ -77,6 +77,7 @@ public class SetupAccountPage {
 				errorLabel.setText(errMsg);
 			} else {
 				try {
+					databaseHelper.verifyConnection(); //  checks if connected -C. Looney
 					// Check if the user already exists
 					if (!databaseHelper.doesUserExist(userName)) {
 
@@ -105,10 +106,14 @@ public class SetupAccountPage {
 				}
 			}
         });
-
+        
+        Button returnButton = Logout.LogoutButton(primaryStage, databaseHelper);
+        returnButton.setText("Return");
+        
         VBox layout = new VBox(10);
         layout.setStyle("-fx-padding: 20; -fx-alignment: center;");
-        layout.getChildren().addAll(userNameField, passwordField, nameField, emailField, inviteCodeField, setupButton, errorLabel);
+
+        layout.getChildren().addAll(returnButton, userNameField, passwordField, nameField, emailField, inviteCodeField, setupButton, errorLabel);
 
         primaryStage.setScene(new Scene(layout, 800, 400));
         primaryStage.setTitle("Account Setup");

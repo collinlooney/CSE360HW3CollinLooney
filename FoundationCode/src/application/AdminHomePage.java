@@ -4,6 +4,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import databasePart1.DatabaseHelper; // added for use with database C.L.
 
 
 /**
@@ -16,11 +17,18 @@ public class AdminHomePage {
      * Displays the admin page in the provided primary stage.
      * @param primaryStage The primary stage where the scene will be displayed.
      */
+	 
+	private final DatabaseHelper databaseHelper; 
+	public AdminHomePage (DatabaseHelper databaseHelper) { //identical implementation to WelcomeLoginPage.java C.L.
+		 this.databaseHelper = databaseHelper; 
+	 }
+	
     public void show(Stage primaryStage) {
-    	VBox layout = new VBox();
+    	VBox layout = new VBox(); 
     	
 	    layout.setStyle("-fx-alignment: center; -fx-padding: 20;");
 	    
+	    layout.getChildren().add(Logout.LogoutButton(primaryStage, databaseHelper)); //logout button C.L. 
 	    // label to display the welcome message for the admin
 	    Label adminLabel = new Label("Hello, Admin!");
 	    

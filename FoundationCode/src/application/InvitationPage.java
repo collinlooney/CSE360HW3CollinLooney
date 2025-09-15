@@ -25,6 +25,10 @@ public class InvitationPage {
     	VBox layout = new VBox();
 	    layout.setStyle("-fx-alignment: center; -fx-padding: 20;");
 	    
+	    Button returnButton = Logout.LogoutButton(primaryStage, databaseHelper);
+	    returnButton.setText("Return");
+	    layout.getChildren().add(returnButton);
+	    
 	    // Label to display the title of the page
 	    Label userLabel = new Label("Invite ");
 	    userLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold;");

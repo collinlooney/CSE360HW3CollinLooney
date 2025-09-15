@@ -23,6 +23,8 @@ public class WelcomeLoginPage {
     	VBox layout = new VBox(5);
 	    layout.setStyle("-fx-alignment: center; -fx-padding: 20;");
 	    
+	    layout.getChildren().add(Logout.LogoutButton(primaryStage, databaseHelper));
+	    
 	    Label welcomeLabel = new Label("Welcome!!");
 	    welcomeLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold;");
 
@@ -31,9 +33,9 @@ public class WelcomeLoginPage {
 		    Button b = new Button("Continue as " + r.display());
 		    b.setOnAction(a -> {
 			    if (r == Role.ADMIN) {
-				    new AdminHomePage().show(primaryStage);
+				    new AdminHomePage(databaseHelper).show(primaryStage);
 			    } else if (r == Role.BASIC_USER) {
-				    new UserHomePage().show(primaryStage);
+				    new UserHomePage(databaseHelper).show(primaryStage);
 			    }
 		    });
 
