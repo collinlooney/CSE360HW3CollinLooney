@@ -25,20 +25,20 @@ public class WelcomeLoginPage {
 	    
 	    Label welcomeLabel = new Label("Welcome!!");
 	    welcomeLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold;");
-	    
-	    // Button to navigate to the user's respective page based on their role
-	    Button continueButton = new Button("Continue to your Page");
-	    continueButton.setOnAction(a -> {
-	    	String role =user.getRole();
-	    	System.out.println(role);
-	    	
-	    	if(role.equals("admin")) {
-	    		new AdminHomePage().show(primaryStage);
-	    	}
-	    	else if(role.equals("user")) {
-	    		new UserHomePage().show(primaryStage);
-	    	}
-	    });
+
+	    // For each role a user has, give them a button to continue to that page
+	    for (Role r : user.getRoles()) {
+		    Button b = new Button("Continue as " + r.display());
+		    b.setOnAction(a -> {
+			    if (r == Role.ADMIN) {
+				    new AdminHomePage().show(primaryStage);
+			    } else if (r == Role.BASIC_USER) {
+				    new UserHomePage().show(primaryStage);
+			    }
+		    });
+
+		    layout.getChildren().add(b);
+	    }
 	    
 	    // Button to quit the application
 	    Button quitButton = new Button("Quit");
@@ -48,7 +48,7 @@ public class WelcomeLoginPage {
 	    });
 	    
 	    // "Invite" button for admin to generate invitation codes
-	    if ("admin".equals(user.getRole())) {
+	    if (user.hasAdmin()) {
             Button inviteButton = new Button("Invite");
             inviteButton.setOnAction(a -> {
                 new InvitationPage().show(databaseHelper, primaryStage);

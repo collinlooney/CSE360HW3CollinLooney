@@ -31,6 +31,7 @@ public class User {
         this.roles = roles;
     }
     
+    // Setters
     // Sets the roles of the user.
     public void setRoles(List<Role> roles) {
         this.roles = roles;
@@ -42,6 +43,18 @@ public class User {
     // Sets email of user
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    // Getters
+    public String getUserName() { return userName; }
+    public String getPassword() { return password; }
+    public String getName() { return name; }
+    public String getEmail() { return email; }
+    public List<Role> getRoles() { return roles; }
+
+    // Helper to check if a user has Admin role
+    public boolean hasAdmin() {
+        return roles.contains(Role.ADMIN);
     }
 
     // Helper methods for converting Roles to/from storage format
@@ -73,11 +86,6 @@ public class User {
         return roles;
     }
 
-    public String getUserName() { return userName; }
-    public String getPassword() { return password; }
-    public String getName() { return name; }
-    public String getEmail() { return email; }
-    public List<Role> getRoles() { return roles; }
 
     public void ViewHomeScreen(Role role) {
         // todo

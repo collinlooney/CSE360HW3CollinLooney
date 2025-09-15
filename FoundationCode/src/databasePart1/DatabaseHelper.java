@@ -85,13 +85,12 @@ public class DatabaseHelper {
 		}
 	}
 
-	// Validates a user's login credentials.
+	// Validates a user's login credentials
 	public boolean login(User user) throws SQLException {
-		String query = "SELECT * FROM cse360users WHERE userName = ? AND password = ? AND role = ?";
+		String query = "SELECT * FROM cse360users WHERE userName = ? AND password = ?";
 		try (PreparedStatement pstmt = connection.prepareStatement(query)) {
 			pstmt.setString(1, user.getUserName());
 			pstmt.setString(2, user.getPassword());
-			pstmt.setString(3, user.getRole());
 			try (ResultSet rs = pstmt.executeQuery()) {
 				return rs.next();
 			}
