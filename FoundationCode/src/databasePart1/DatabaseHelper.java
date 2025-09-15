@@ -29,6 +29,7 @@ public class DatabaseHelper {
 
 	public void connectToDatabase() throws SQLException {
 		try {
+			if (connection != null && !connection.isClosed()) return; // do not act if connection is established -C Looney 
 			Class.forName(JDBC_DRIVER); // Load the JDBC driver
 			System.out.println("Connecting to database...");
 			connection = DriverManager.getConnection(DB_URL, USER, PASS);
@@ -39,6 +40,13 @@ public class DatabaseHelper {
 			createTables();  // Create the necessary tables if they don't exist
 		} catch (ClassNotFoundException e) {
 			System.err.println("JDBC Driver not found: " + e.getMessage());
+		}
+	}
+	
+	// below method by C. Looney  to guard against lost connections 
+	public void verifyConnection() throws SQLException {
+		if (connection == null || connection.isClosed()) {
+			connectToDatabase(); 
 		}
 	}
 

@@ -57,6 +57,8 @@ public class UserLoginPage {
             	errorLabel.setText(errMsg);
 			} else {
 				try {
+					databaseHelper.verifyConnection(); //  checks if connected -C. Looney
+					
 					User user = new User(userName, password, "");
 					WelcomeLoginPage welcomeLoginPage = new WelcomeLoginPage(databaseHelper);
 
@@ -82,10 +84,12 @@ public class UserLoginPage {
 				}
 			}
         });
-
+        Button returnButton = Logout.LogoutButton(primaryStage, databaseHelper); //return button added to go back if needed 
+        returnButton.setText("Return");
+        
         VBox layout = new VBox(10);
         layout.setStyle("-fx-padding: 20; -fx-alignment: center;");
-        layout.getChildren().addAll(userNameField, passwordField, loginButton, errorLabel);
+        layout.getChildren().addAll(returnButton, userNameField, passwordField, loginButton, errorLabel);
 
         primaryStage.setScene(new Scene(layout, 800, 400));
         primaryStage.setTitle("User Login");
