@@ -1,0 +1,6 @@
+# Ignore compiled Java class files
+*.class
+
+# Ignore Eclipse project files
+.classpath
+.project
