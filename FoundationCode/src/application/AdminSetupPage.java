@@ -27,6 +27,14 @@ public class AdminSetupPage {
         userNameField.setPromptText("Enter Admin userName");
         userNameField.setMaxWidth(250);
 
+        TextField nameField = new TextField();
+        nameField.setPromptText("Enter name");
+        nameField.setMaxWidth(250);
+
+        TextField emailField = new TextField();
+        emailField.setPromptText("Enter email");
+        emailField.setMaxWidth(250);
+
         PasswordField passwordField = new PasswordField();
         passwordField.setPromptText("Enter Password");
         passwordField.setMaxWidth(250);
@@ -41,24 +49,31 @@ public class AdminSetupPage {
         	// Retrieve user input
             String userName = userNameField.getText();
             String password = passwordField.getText();
-            
-            // ADD
+            String name = nameField.getText();
+            String email = emailField.getText();
+
             // Validate userName input
             String usernameErrMsg = UserNameRecognizer.checkForValidUserName(userName);
             // Validate password input
             String passwordErrMsg = PasswordRecognizer.evaluatePassword(password);
+            // Validate email input (stub)
+            String emailErrMsg = "";
             
             // Construct multi-line error message to indicate if
-            // username and/or password are invalid
-            String errMsg = usernameErrMsg + passwordErrMsg;
+            // username/password/email are invalid
+            String errMsg = usernameErrMsg + passwordErrMsg + emailErrMsg;
             
 			if (!errMsg.isEmpty()) {
 				// Set Error label to contain error message(s)
 				errorLabel.setText(errMsg);
 			} else {
 				try {
-					// Create a new User object with admin role and register in the database
-					User user = new User(userName, password, "admin");
+					// Create user with admin role and register in the database
+                                        ArrayList<Role> roles = new ArrayList<>();
+                                        roles.add(Role.ADMIN);
+                                        roles.add(Role.BASIC_USER);
+
+					User user = new User(userName, name, email, password, roles);
 					databaseHelper.register(user);
 					System.out.println("Administrator setup completed.");
 
@@ -71,7 +86,7 @@ public class AdminSetupPage {
 			}
         });
 
-        VBox layout = new VBox(10, userNameField, passwordField, setupButton, errorLabel);
+        VBox layout = new VBox(10, userNameField, passwordField, nameField, emailField, setupButton, errorLabel);
         layout.setStyle("-fx-padding: 20; -fx-alignment: center;");
 
         primaryStage.setScene(new Scene(layout, 800, 400));

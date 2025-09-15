@@ -35,21 +35,19 @@ public class UserLoginPage {
         Label errorLabel = new Label();
         errorLabel.setStyle("-fx-text-fill: red; -fx-font-size: 12px;");
 
-
         Button loginButton = new Button("Login");
         
         loginButton.setOnAction(a -> {
         	// Retrieve user inputs
             String userName = userNameField.getText();
             String password = passwordField.getText();
-            // ADD
             // Validate userName input
             String usernameErrMsg = UserNameRecognizer.checkForValidUserName(userName);
             // Validate password input
             String passwordErrMsg = PasswordRecognizer.evaluatePassword(password);
             
             // Construct multi-line error message to indicate if
-            // username and/or password are invalid
+            // username/password are invalid
             String errMsg = usernameErrMsg + passwordErrMsg;
             
             if (!errMsg.isEmpty()) {
@@ -58,17 +56,33 @@ public class UserLoginPage {
 			} else {
 				try {
 					databaseHelper.verifyConnection(); //  checks if connected -C. Looney
-					
-					User user = new User(userName, password, "");
+          
+          User user = new User(userName, "", "", password, new ArrayList<>());
+
 					WelcomeLoginPage welcomeLoginPage = new WelcomeLoginPage(databaseHelper);
 
-					// Retrieve the user's role from the database using userName
-					String role = databaseHelper.getUserRole(userName);
+					// Retrieve user's roles, name, email from the database using userName
+					ArrayList<Role> roles = databaseHelper.getUserRoles(userName);
+                                        String name = databaseHelper.getUserNameField(userName);
+                                        String email = databaseHelper.getUserEmail(userName);
 
-					if (role != null) {
-						user.setRole(role);
+					if ((!roles.isEmpty()) && (name != null) && (email != null)) {
+						user.setRoles(roles);
+                                                user.setName(name);
+                                                user.setEmail(email);
 						if (databaseHelper.login(user)) {
-							welcomeLoginPage.show(primaryStage, user);
+                                                        // If user has multiple roles, go to role selection page
+                                                        if (roles.size() > 1) {
+                                                                welcomeLoginPage.show(primaryStage, user);
+                                                        } else {
+                                                                // Only has 1 role, immediately go there
+                                                                Role r = roles.get(0);
+                                                                if (r == Role.ADMIN) {
+                                                                        new AdminHomePage().show(primaryStage);
+                                                                } else if (r == Role.BASIC_USER) {
+                                                                        new UserHomePage().show(primaryStage);
+                                                                }
+                                                        }
 						} else {
 							// Display an error if the login fails
 							errorLabel.setText("Error logging in");

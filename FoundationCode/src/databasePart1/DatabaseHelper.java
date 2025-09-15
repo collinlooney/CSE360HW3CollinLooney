@@ -5,6 +5,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.UUID;
+import java.util.*;
 
 import application.User;
 
@@ -55,7 +56,10 @@ public class DatabaseHelper {
 				+ "id INT AUTO_INCREMENT PRIMARY KEY, "
 				+ "userName VARCHAR(255) UNIQUE, "
 				+ "password VARCHAR(255), "
-				+ "role VARCHAR(20))";
+				+ "name VARCHAR(255), "
+				+ "email VARCHAR(255), "
+				// Roles stored as "1,2", convert to/from int on read/write
+				+ "roles VARCHAR(20))";
 		statement.execute(userTable);
 		
 		// Create the invitation codes table
@@ -78,22 +82,23 @@ public class DatabaseHelper {
 
 	// Registers a new user in the database.
 	public void register(User user) throws SQLException {
-		String insertUser = "INSERT INTO cse360users (userName, password, role) VALUES (?, ?, ?)";
+		String insertUser = "INSERT INTO cse360users (userName, password, name, email, roles) VALUES (?, ?, ?, ?, ?)";
 		try (PreparedStatement pstmt = connection.prepareStatement(insertUser)) {
 			pstmt.setString(1, user.getUserName());
 			pstmt.setString(2, user.getPassword());
-			pstmt.setString(3, user.getRole());
+			pstmt.setString(3, user.getName());
+			pstmt.setString(4, user.getEmail());
+			pstmt.setString(5, user.rolesToString());
 			pstmt.executeUpdate();
 		}
 	}
 
-	// Validates a user's login credentials.
+	// Validates a user's login credentials
 	public boolean login(User user) throws SQLException {
-		String query = "SELECT * FROM cse360users WHERE userName = ? AND password = ? AND role = ?";
+		String query = "SELECT * FROM cse360users WHERE userName = ? AND password = ?";
 		try (PreparedStatement pstmt = connection.prepareStatement(query)) {
 			pstmt.setString(1, user.getUserName());
 			pstmt.setString(2, user.getPassword());
-			pstmt.setString(3, user.getRole());
 			try (ResultSet rs = pstmt.executeQuery()) {
 				return rs.next();
 			}
@@ -118,20 +123,57 @@ public class DatabaseHelper {
 	    return false; // If an error occurs, assume user doesn't exist
 	}
 	
-	// Retrieves the role of a user from the database using their UserName.
-	public String getUserRole(String userName) {
-	    String query = "SELECT role FROM cse360users WHERE userName = ?";
+	// Retrieves the roles of a user from the database using their UserName.
+	public ArrayList<Role> getUserRoles(String userName) {
+	    String query = "SELECT roles FROM cse360users WHERE userName = ?";
 	    try (PreparedStatement pstmt = connection.prepareStatement(query)) {
 	        pstmt.setString(1, userName);
 	        ResultSet rs = pstmt.executeQuery();
 	        
 	        if (rs.next()) {
-	            return rs.getString("role"); // Return the role if user exists
+		    String rolesStr = rs.getString("roles");
+		    ArrayList<Role> roles = User.rolesFromString(rolesStr);
+		    return roles;
 	        }
 	    } catch (SQLException e) {
 	        e.printStackTrace();
 	    }
-	    return null; // If no user exists or an error occurs
+	    // If no user exists or an error occurs
+	    return new ArrayList<>();
+	}
+	
+	// Retrieves the name of a user from the database using their UserName.
+	public String getUserNameField(String userName) {
+	    String query = "SELECT name FROM cse360users WHERE userName = ?";
+	    try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+	        pstmt.setString(1, userName);
+	        ResultSet rs = pstmt.executeQuery();
+	        
+	        if (rs.next()) {
+		    return rs.getString("name");
+	        }
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	    }
+	    // If no user exists or an error occurs
+	    return null;
+	}
+	
+	// Retrieves the email of a user from the database using their UserName.
+	public String getUserEmail(String userName) {
+	    String query = "SELECT email FROM cse360users WHERE userName = ?";
+	    try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+	        pstmt.setString(1, userName);
+	        ResultSet rs = pstmt.executeQuery();
+	        
+	        if (rs.next()) {
+		    return rs.getString("email");
+	        }
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	    }
+	    // If no user exists or an error occurs
+	    return null;
 	}
 	
 	// Generates a new invitation code and inserts it into the database.
