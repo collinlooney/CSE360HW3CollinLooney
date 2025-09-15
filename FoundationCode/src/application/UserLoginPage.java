@@ -69,11 +69,15 @@ public class UserLoginPage {
 					User user = new User(userName, "", "", password, new ArrayList<>());
 					WelcomeLoginPage welcomeLoginPage = new WelcomeLoginPage(databaseHelper);
 
-					// Retrieve the user's role from the database using userName
-					String role = databaseHelper.getUserRole(userName);
+					// Retrieve user's roles, name, email from the database using userName
+					ArrayList<Role> roles = databaseHelper.getUserRoles(userName);
+                                        String name = databaseHelper.getUserNameField(userName);
+                                        String email = databaseHelper.getUserEmail(userName);
 
-					if (role != null) {
-						user.setRole(role);
+					if ((!roles.isEmpty()) && (name != null) && (email != null)) {
+						user.setRoles(roles);
+                                                user.setName(name);
+                                                user.setEmail(email);
 						if (databaseHelper.login(user)) {
 							welcomeLoginPage.show(primaryStage, user);
 						} else {

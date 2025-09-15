@@ -118,7 +118,7 @@ public class DatabaseHelper {
 	
 	// Retrieves the roles of a user from the database using their UserName.
 	public ArrayList<Role> getUserRoles(String userName) {
-	    String query = "SELECT role FROM cse360users WHERE userName = ?";
+	    String query = "SELECT roles FROM cse360users WHERE userName = ?";
 	    try (PreparedStatement pstmt = connection.prepareStatement(query)) {
 	        pstmt.setString(1, userName);
 	        ResultSet rs = pstmt.executeQuery();
@@ -131,7 +131,42 @@ public class DatabaseHelper {
 	    } catch (SQLException e) {
 	        e.printStackTrace();
 	    }
-	    return null; // If no user exists or an error occurs
+	    // If no user exists or an error occurs
+	    return new ArrayList<>();
+	}
+	
+	// Retrieves the name of a user from the database using their UserName.
+	public String getUserNameField(String userName) {
+	    String query = "SELECT name FROM cse360users WHERE userName = ?";
+	    try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+	        pstmt.setString(1, userName);
+	        ResultSet rs = pstmt.executeQuery();
+	        
+	        if (rs.next()) {
+		    return rs.getString("name");
+	        }
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	    }
+	    // If no user exists or an error occurs
+	    return null;
+	}
+	
+	// Retrieves the email of a user from the database using their UserName.
+	public String getUserEmail(String userName) {
+	    String query = "SELECT email FROM cse360users WHERE userName = ?";
+	    try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+	        pstmt.setString(1, userName);
+	        ResultSet rs = pstmt.executeQuery();
+	        
+	        if (rs.next()) {
+		    return rs.getString("email");
+	        }
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	    }
+	    // If no user exists or an error occurs
+	    return null;
 	}
 	
 	// Generates a new invitation code and inserts it into the database.

@@ -35,6 +35,14 @@ public class User {
     public void setRoles(List<Role> roles) {
         this.roles = roles;
     }
+    // Sets name of user
+    public void setName(String name) {
+        this.name = name;
+    }
+    // Sets email of user
+    public void setEmail(String email) {
+        this.email = email;
+    }
 
     // Helper methods for converting Roles to/from storage format
     // Converts roles to storage format "1,2,3"
