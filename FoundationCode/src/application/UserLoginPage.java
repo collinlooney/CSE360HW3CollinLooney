@@ -79,7 +79,18 @@ public class UserLoginPage {
                                                 user.setName(name);
                                                 user.setEmail(email);
 						if (databaseHelper.login(user)) {
-							welcomeLoginPage.show(primaryStage, user);
+                                                        // If user has multiple roles, go to role selection page
+                                                        if (roles.size() > 1) {
+                                                                welcomeLoginPage.show(primaryStage, user);
+                                                        } else {
+                                                                // Only has 1 role, immediately go there
+                                                                Role r = roles.get(0);
+                                                                if (r == Role.ADMIN) {
+                                                                        new AdminHomePage().show(primaryStage);
+                                                                } else if (r == Role.BASIC_USER) {
+                                                                        new UserHomePage().show(primaryStage);
+                                                                }
+                                                        }
 						} else {
 							// Display an error if the login fails
 							errorLabel.setText("Error logging in");
