@@ -1,6 +1,6 @@
 package application;
 import application.Role;
-import java.util.list;
+import java.util.*;
 
 /**
  * The User class represents a user entity in the system.
@@ -8,11 +8,10 @@ import java.util.list;
  * name, email, password, and roles.
  */
 public class User {
-
     // userName is used when signing in and as a key in storage
     private String userName;
     private String name;
-    private Strine email;
+    private String email;
     private String password;
     private List<Role> roles;
 

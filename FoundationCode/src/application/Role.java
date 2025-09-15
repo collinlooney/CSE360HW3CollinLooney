@@ -28,7 +28,7 @@ public enum Role {
 				return BASIC_USER;
 			}
 			default: {
-				throw new IlelgalArgumentException("Invalid role code: " + n);
+				throw new IllegalArgumentException("Invalid role code: " + n);
 			}
 		}
 	}
