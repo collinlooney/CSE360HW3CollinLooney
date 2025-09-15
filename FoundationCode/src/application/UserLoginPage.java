@@ -27,14 +27,6 @@ public class UserLoginPage {
         userNameField.setPromptText("Enter userName");
         userNameField.setMaxWidth(250);
 
-        // TextField nameField = new TextField();
-        // nameField.setPromptText("Enter name");
-        // nameField.setMaxWidth(250);
-        //
-        // TextField emailField = new TextField();
-        // emailField.setPromptText("Enter email");
-        // emailField.setMaxWidth(250);
-
         PasswordField passwordField = new PasswordField();
         passwordField.setPromptText("Enter Password");
         passwordField.setMaxWidth(250);
@@ -43,14 +35,11 @@ public class UserLoginPage {
         Label errorLabel = new Label();
         errorLabel.setStyle("-fx-text-fill: red; -fx-font-size: 12px;");
 
-
         Button loginButton = new Button("Login");
         
         loginButton.setOnAction(a -> {
         	// Retrieve user inputs
             String userName = userNameField.getText();
-            // String name = nameField.getText();
-            // String email = emailField.getText();
             String password = passwordField.getText();
             // Validate userName input
             String usernameErrMsg = UserNameRecognizer.checkForValidUserName(userName);
