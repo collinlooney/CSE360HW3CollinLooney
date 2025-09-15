@@ -11,7 +11,7 @@ import databasePart1.*;
 
 /**
  * SetupAccountPage class handles the account setup process for new users.
- * Users provide their userName, password, and a valid invitation code to register.
+ * Users provide their userName, password, name, email and a valid invitation code to register.
  */
 public class SetupAccountPage {
 	
@@ -34,6 +34,14 @@ public class SetupAccountPage {
         PasswordField passwordField = new PasswordField();
         passwordField.setPromptText("Enter Password");
         passwordField.setMaxWidth(250);
+
+        TextField nameField = new TextField();
+        nameField.setPromptText("Enter name");
+        nameField.setMaxWidth(250);
+
+        TextField emailField = new TextField();
+        emailField.setPromptText("Enter email");
+        emailField.setMaxWidth(250);
         
         TextField inviteCodeField = new TextField();
         inviteCodeField.setPromptText("Enter InvitationCode");
@@ -49,17 +57,20 @@ public class SetupAccountPage {
         	// Retrieve user input
             String userName = userNameField.getText();
             String password = passwordField.getText();
+            String name = nameField.getText();
+            String email = emailField.getText();
             String code = inviteCodeField.getText();
             
-            // ADD
             // Validate userName input
             String usernameErrMsg = UserNameRecognizer.checkForValidUserName(userName);
             // Validate password input
             String passwordErrMsg = PasswordRecognizer.evaluatePassword(password);
+            // Validate email input (stub)
+            String emailErrMsg = "";
             
             // Construct multi-line error message to indicate if
-            // username and/or password are invalid
-            String errMsg = usernameErrMsg + passwordErrMsg;
+            // username/password/email are invalid
+            String errMsg = usernameErrMsg + passwordErrMsg + emailErrMsg;
             
 			if (!errMsg.isEmpty()) {
 				// Set Error label to contain error message(s)
@@ -73,7 +84,10 @@ public class SetupAccountPage {
 						if (databaseHelper.validateInvitationCode(code)) {
 
 							// Create a new user and register them in the database
-							User user = new User(userName, password, "user");
+                                                        ArrayList<Role> roles = new ArrayList<>();
+                                                        roles.add(Role.BASIC_USER);
+
+                                                        User user = new User(userName, name, email, password, roles);
 							databaseHelper.register(user);
 
 							// Navigate to the Welcome Login Page
@@ -94,7 +108,7 @@ public class SetupAccountPage {
 
         VBox layout = new VBox(10);
         layout.setStyle("-fx-padding: 20; -fx-alignment: center;");
-        layout.getChildren().addAll(userNameField, passwordField,inviteCodeField, setupButton, errorLabel);
+        layout.getChildren().addAll(userNameField, passwordField, nameField, emailField, inviteCodeField, setupButton, errorLabel);
 
         primaryStage.setScene(new Scene(layout, 800, 400));
         primaryStage.setTitle("Account Setup");
