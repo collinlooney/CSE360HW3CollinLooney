@@ -123,6 +123,38 @@ public class DatabaseHelper {
 	    }
 	    return false; // If an error occurs, assume user doesn't exist
 	}
+
+	// Updates stored information for `userName` with `newUserInfo`.
+	// Does not update userName field.
+	public String updateUserInfo(String userName, User newUser) {
+
+		// Verify that user exists
+		boolean exists = this.doesUserExist(userName);
+		if (!exists) {
+			System.out.println("User with userName '" + userName + "' not found.");
+			return "User with userName '" + userName + "' not found.";
+		}
+
+		// Updating user
+		String q = "UPDATE cse360users SET userName = ?, password = ?, name = ?, email = ?, roles = ? WHERE userName = ?";
+
+		try (PreparedStatement pstmt = connection.prepareStatement(q)) {
+			pstmt.setString(1, userName);
+			pstmt.setString(2, newUser.getPassword());
+			pstmt.setString(3, newUser.getName());
+			pstmt.setString(4, newUser.getEmail());
+			pstmt.setString(5, newUser.rolesToString());
+			pstmt.setString(6, userName);
+			pstmt.executeUpdate();
+
+		} catch (SQLException e) {
+	                e.printStackTrace();
+			return "Error: SQL error";
+	        }
+
+		// Empty string to indicate success
+		return "";
+	}
 	
 	// Retrieves the roles of a user from the database using their UserName.
 	public ArrayList<Role> getUserRoles(String userName) {
