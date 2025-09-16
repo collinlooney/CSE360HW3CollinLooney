@@ -1,6 +1,3 @@
-# Ignore compiled Java class files
-*.class
-
-# Ignore Eclipse project files
-.classpath
-.project
+/application/
+/databasePart1/
+/module-info.class
