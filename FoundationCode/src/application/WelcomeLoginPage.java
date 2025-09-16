@@ -58,7 +58,7 @@ public class WelcomeLoginPage {
             layout.getChildren().add(inviteButton);
         }
 
-	    layout.getChildren().addAll(welcomeLabel,continueButton,quitButton);
+	    layout.getChildren().addAll(welcomeLabel, quitButton);
 	    Scene welcomeScene = new Scene(layout, 800, 400);
 
 	    // Set the scene to primary stage

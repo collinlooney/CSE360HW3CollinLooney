@@ -65,9 +65,9 @@ public class User {
         }
         String res = "";
         for (int i = 0; i < roles.size(); i++) {
-            result += roles.get(i).toInt();
+            res += roles.get(i).toInt();
             if (i < roles.size() - 1) {
-                result += ",";
+                res += ",";
             }
         }
         return res;

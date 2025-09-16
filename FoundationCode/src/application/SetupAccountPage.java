@@ -6,6 +6,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 import databasePart1.*;
 
