@@ -107,7 +107,12 @@ public class NameValidator {
 					currentState = STATE_IN_LETTER; // separator must be followed by letter, valid
 				}else {
 					currentState = STATE_INVALID; // consecutive separators of invalid character
-					nameErrorMessage = "\nNAME ERROR: A space, hyphen or apostrophe must be followed by a letter.";
+					if(currentChar == ' ' || currentChar == '-' || currentChar == '\'')
+					{
+						nameErrorMessage = "\nNAME ERROR: A space, hyphen or apostrophe must be followed by a letter.";
+					}else {
+						nameErrorMessage = "\nNAME ERROR: Name contains invalid character: '" + currentChar + "'";
+					}
 				}
 				break;
 			case STATE_INVALID:		
