@@ -50,10 +50,7 @@ public class NameValidator {
 		
 		// Initialize the FSM for a new validation run
 		nameInput = input;
-		
-		
-		// Trim leading/trailing whitespace before validation
-		inputLine = input.trim();
+		inputLine = input;
 		charCounter = 0;
 		
 		

@@ -53,10 +53,13 @@ public class NameValidatorTest {
         // Test name starting with a hyphen
         String errMsg1 = NameValidator.validateName("-InvalidStart");
         assertFalse("Testing name starting with a hyphen...", errMsg1.isEmpty());
+        // Test name with leading whitespace
+        String errMsg5 = NameValidator.validateName("  InValid Name");
+        assertFalse("Testing name begining with whitespace...", errMsg5.isEmpty());
         
-        // Test name ending with a space (should be trimmed and become valid)
-        String errMsg2 = NameValidator.validateName("ValidEnd ");
-        assertTrue("Testing name ending with a space...", errMsg2.isEmpty());
+        // Test name ending with a space
+        String errMsg2 = NameValidator.validateName("InvalidEnd ");
+        assertFalse("Testing name ending with a space...", errMsg2.isEmpty());
         
         // Test name with consecutive separators (hyphens)
         String errMsg3 = NameValidator.validateName("Bad--Format");
@@ -65,9 +68,6 @@ public class NameValidatorTest {
         // Test name with consecutive separators (spaces)
         String errMsg4 = NameValidator.validateName("Bad  Format");
         assertFalse("Testing name with consecutive spaces...", errMsg4.isEmpty());
-        
-        // Test that leading/trailing whitespace is properly trimmed and becomes valid
-        String errMsg5 = NameValidator.validateName("  Valid Name  ");
-        assertTrue("Testing that surrounding whitespace is trimmed...", errMsg5.isEmpty());
+
     }
 }
