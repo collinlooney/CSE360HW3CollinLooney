@@ -8,7 +8,7 @@ import java.util.UUID;
 import java.util.*;
 
 import application.User;
-
+import application.Role;
 
 /**
  * The DatabaseHelper class is responsible for managing the connection to the database,
