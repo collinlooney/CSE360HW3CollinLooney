@@ -6,6 +6,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 import databasePart1.*;
 
@@ -78,9 +79,9 @@ public class UserLoginPage {
                                                                 // Only has 1 role, immediately go there
                                                                 Role r = roles.get(0);
                                                                 if (r == Role.ADMIN) {
-                                                                        new AdminHomePage().show(primaryStage);
+                                                                        new AdminHomePage(databaseHelper).show(primaryStage);
                                                                 } else if (r == Role.BASIC_USER) {
-                                                                        new UserHomePage().show(primaryStage);
+                                                                        new UserHomePage(databaseHelper).show(primaryStage);
                                                                 }
                                                         }
 						} else {

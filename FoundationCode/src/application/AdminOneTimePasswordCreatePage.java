@@ -6,6 +6,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 import databasePart1.*;
 
@@ -81,7 +82,7 @@ public class AdminOneTimePasswordCreatePage {
 			}
 		});
 
-		VBox layout = new VBox(10, userNameField, setPasswordButton, errorLabel);
+		VBox layout = new VBox(10, userNameField, setPasswordButton, msgLabel);
 		layout.setStyle("-fx-padding: 20; -fx-alignment: center;");
 
 		primaryStage.setScene(new Scene(layout, 800, 400));
