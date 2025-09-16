@@ -125,19 +125,8 @@ public class DatabaseHelper {
 	}
 
 	// Updates stored information for `userName` with `newUserInfo`.
-	// `caller` is the currently signed in user when this method is called.
-	// If `caller` is not an Admin and does not have the same username as `userName`,
-	// this will print and return an Error message.
-	// Otherwise, the entry for `userName` will be updated with `newUserInfo`.
-	// NOTE: Does not update userName
-	public String updateUserInfo(String userName, User newUserInfo, User caller) {
-		// Checking if caller is Admin or the user to be updated
-		boolean isAdmin = caller.getRoles().contains(Role.ADMIN);
-
-		if (!isAdmin && !caller.getUserName().equals(userName)) {
-			System.out.println("Permission denied: Not allowed to update this user");
-			return "Permission denied: Not allowed to update this user";
-		}
+	// Does not update userName field.
+	public String updateUserInfo(String userName, User newUser) {
 
 		// Verify that user exists
 		boolean exists = this.doesUserExist(userName);
