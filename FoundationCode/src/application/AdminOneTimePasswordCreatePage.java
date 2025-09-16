@@ -31,20 +31,45 @@ public class AdminOneTimePasswordCreatePage {
 			userNameField.setText(userName);
 		}
 
+		// Input field for manual password
+		TextField passwordField = new TextField();
+		passwordField.setPromptText("Enter one time password");
+		passwordField.setMaxWidth(250);
+
 		// Button to set the one time password
 		Button setPasswordButton = new Button("Set Password");
 
+		// Label to display error/success messages
+		Label msgLabel = new Label();
+		msgLabel.setStyle("-fx-text-fill: red; -fx-font-size: 12px;");
+
 		setPasswordButton.setOnAction(a -> {
+			// Load text fields
+			String userNameV = userNameField.getText();
+			String password = passwordField.getText();
+
+			// Validate password
+			String passwordErrMsg = PasswordRecognizer.evaluatePassword(password);
+			if (!passwordErrMsg.isEmpty()) {
+				msgLabel.setText(passwordErrMsg);
+				return;
+			}
+
+			// Validate user exists
+			boolean exists = this.databaseHelper.doesUserExist(userNameV);
+			if (!exists) {
+				msgLabel.setText("ERROR: User with userName '" + userNameV + "' not found.");
+				return;
+			}
+
 		});
 
-		VBox layout = new VBox(10, userNameField, setPasswordButton);
+		VBox layout = new VBox(10, userNameField, setPasswordButton, errorLabel);
 		layout.setStyle("-fx-padding: 20; -fx-alignment: center;");
 
 		primaryStage.setScene(new Scene(layout, 800, 400));
 		primaryStage.setTitle("Admin One Time Password Creation");
 		primaryStage.show();
-
-
 
 	}
 
