@@ -9,7 +9,6 @@ import java.sql.SQLException;
 
 import databasePart1.*;
 
-
 /**
  * Page for an Admin set a One Time Password for a User
  */
@@ -46,10 +45,10 @@ public class AdminOneTimePasswordCreatePage {
 		setPasswordButton.setOnAction(a -> {
 			// Load text fields
 			String userNameV = userNameField.getText();
-			String password = passwordField.getText();
+			String newPassword = passwordField.getText();
 
 			// Validate password
-			String passwordErrMsg = PasswordRecognizer.evaluatePassword(password);
+			String passwordErrMsg = PasswordRecognizer.evaluatePassword(newPassword);
 			if (!passwordErrMsg.isEmpty()) {
 				msgLabel.setText(passwordErrMsg);
 				return;
@@ -62,6 +61,24 @@ public class AdminOneTimePasswordCreatePage {
 				return;
 			}
 
+			// Load user data for update
+			String name = this.databaseHelper.getUserNameField(userNameV);
+			String email = this.databaseHelper.getUserEmail(userNameV);
+			ArrayList<Role> roles = this.databaseHelper.getUserRoles(userNameV);
+			User newInfo = new User(userNameV, name, email, newPassword, roles);
+
+			// Updating user database entry with onetime password
+			String updateErrMsg = this.databaseHelper.updateUserInfo(userNameV, newInfo);
+			if (!updateErrMsg.isEmpty()) {
+				msgLabel.setText(updateErrMsg);
+				return;
+			} else {
+				msgLabel.setStyle("-fx-text-fill: green; -fx-font-size: 12px;");
+				String m = "One time password set successfully\n";
+				m += "Username: '" + userNameV + "'\n";
+				m += "New password: '" + newPassword + "'\n";
+				msgLabel.setText(m);
+			}
 		});
 
 		VBox layout = new VBox(10, userNameField, setPasswordButton, errorLabel);
