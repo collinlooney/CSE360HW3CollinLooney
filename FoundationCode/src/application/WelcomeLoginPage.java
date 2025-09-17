@@ -33,7 +33,7 @@ public class WelcomeLoginPage {
 		    Button b = new Button("Continue as " + r.display());
 		    b.setOnAction(a -> {
 			    if (r == Role.ADMIN) {
-				    new AdminHomePage(databaseHelper).show(primaryStage);
+				    new AdminHomePage(databaseHelper).show(primaryStage, user);
 			    } else if (r == Role.BASIC_USER) {
 				    new UserHomePage(databaseHelper).show(primaryStage);
 			    }
