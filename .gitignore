@@ -1,10 +1,13 @@
+# macOS system files
 .DS_Store
 __MACOSX
 ._*
 
 # Java & Eclipse
 *.class
-**/bin/
-**/.settings/
 .classpath
 .project
+**/.settings/
+
+# Compiled output directory
+**/bin/
