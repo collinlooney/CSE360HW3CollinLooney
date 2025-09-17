@@ -5,13 +5,21 @@ public class EmailValidator {
 	 * <p> Title: FSM-translated EmailValidator. </p>
 	 *
 	 * <p> Description: A demonstration of the mechanical translation of a Finite State Machine
-	 * into an executable Java program. This variant validates emails per three rules:
-	 * (1) '@' must occur before '.', (2) an alphanumeric must appear immediately before '.',
-	 * (3) an alphabetic must appear immediately after '.'. </p>
+	 * into an executable Java program. This variant validates emails per multiple primary rules:
+	 * (1) Local part of email may contain alphanumeric and some specials (2) '.' can not start email or follow another '.' or '-'
+	 * (3) Domain can contain alphanumeric, '-' and non consecutive '.' (4) At least one '.' must be in the domain 
+	 * (5) An alphabetic char must appear immediately after last '.' (6)  TLD following last '.' can be alphabetic or '-', though '-' 
+	 * must not follow '.' or end email.
+	 * 
+	 * 	
+	 * 
+	 * </p>
 	 *
 	 * <p> Derived structure from UserNameRecognizer by Lynn Robert Carter © 2024. </p>
 	 *
+
 	 * @author Jonathan Waterway, Collin Looney
+
 	 * @version 1.00  2025-09-15  Initial version based on UserNameRecognizer FSM style
 	 */
 
@@ -26,10 +34,10 @@ public class EmailValidator {
 	public static int emailValidatorIndexofError = -1;		// The index of error location
 	private static int state = 0;							// The current state value
 	private static int nextState = 0;						// The next state value
-	private static int emailSize = 0;			       		// size of email entry 
+	private static int emailSize = 0;			       		// Size of email entry 
 	private static int currentCharNdx;						// The index of the current character
 	private static int atIndex = -1;						// Count how many @
-	private static int dotCount = 0;						// How many dots seen after @ in FSM
+	private static int dotCount = 0;						// How many dots seen after @ in input
 	private static int totalDots = 0;						// How many total dots after @ in input
 	
 	private static char currentChar;						// The current character in the line
@@ -59,7 +67,7 @@ public class EmailValidator {
 	    }
 	}
 	
-	private static void displayDebuggingInfo() { //same as LR Carter's code except line 64 (emailSize) 
+	private static void displayDebuggingInfo() { //same as LR Carter's code except line 78 (emailSize) 
 		// Display the current state of the FSM as part of an execution trace
 		if (currentCharNdx >= inputLine.length())
 			// display the line with the current state numbers aligned
@@ -87,10 +95,11 @@ public class EmailValidator {
 		
 		/** FSM 
 		 * States:
-		 * 0: validates the local part of the email address
-		 * 1: transition to domain upon '@' symbol
-		 * 2: period entered 
-		 * 3: alpha character entered after period, completing requirements (Accepting state)
+		 * 0: validates the local part of the email address -> repeat state 0 or goto 2
+		 * 1: dot state needs alphanumeric or special between -> repeat state 1 or goto 0
+		 * 2: transition to domain upon '@' symbol -> state 3 
+		 * 3: last dot entered -> state 4
+		 * 4: alpha character entered after period, completing requirements (Accepting state)
 		 */
 		
 		public static String checkForValidEmail (String input) { 
@@ -112,18 +121,22 @@ public class EmailValidator {
 		emailValidatorInput = input;	// Save a copy of the input
 		running = true;						// Start the loop
 		nextState = -1;						// There is no next state
-		finalState = false; 				// still running 
-		validLocal = false;					// reset validLocal
-		otherChar = false;       			// reset otherChar
-		badHyphen = false;					// reset badHyphen flag
-		atIndex = -1;
-		dotCount = 0;
-		totalDots = 0;
+		finalState = false; 				// Still running 
+		validLocal = false;					// Reset validLocal
+		otherChar = false;       			// Reset otherChar
+		badHyphen = false;					// Reset badHyphen flag
+		atIndex = -1;                       // Index number for @ sign (-1 if none)
+		dotCount = 0;						// Reset dotCount
+		totalDots = 0;						// Reset totalDots
+		emailSize = 0;						// Initialize the email size
 		
-		// Special pre-scan errors
-		System.out.println(input); //debug
+		// **Special pre-scan errors
+		// System.out.println(input); // debug line
 		
 		// Count and index @
+		
+		System.out.println("\nCurrent Final Input  Next  Size\nState   State Char  State  Size"); // debug line
+		
 		for (int i = 0; i < input.length(); i++) {
 		    char c = input.charAt(i);
 		    if (c == '@') 
@@ -132,11 +145,10 @@ public class EmailValidator {
 		    	} else 	return "EMAIL ERROR: Multiple '@' symbols are not allowed.\n";
 		}
 		
-		// Return error if no @
+				
+		if (atIndex == -1) return "EMAIL ERROR: Missing '@' symbol.\n";  // Return error if no @
 		
-		if (atIndex == -1) return "EMAIL ERROR: Missing '@' symbol.\n";
-		
-		// count dots in input
+		// find total # of dots in input after @ symbol
 		for (int i = atIndex; i < input.length() - 1; i++) {
 			char c = input.charAt(i);
 			if (c == '.') totalDots++;				
@@ -145,12 +157,7 @@ public class EmailValidator {
 		if (totalDots == 0) {
 		    return "EMAIL ERROR: Missing '.' in domain.\n";
 		}
-		
-		System.out.println("\nCurrent Final Input  Next  Size\nState   State Char  State  Size");
-		
-		// This is the place where semantic actions for a transition to the initial state occur
-		
-		emailSize = 0;					// Initialize the email size
+				
 		
 		while (running) { 
 			switch (state) {
@@ -182,7 +189,7 @@ public class EmailValidator {
 				}
 				break;
 			
-			case 1: 
+			case 1: // dot state -> 0 or 1 
 				//  
 				if ((isAlphanum(currentChar) || ("~`!#$%^&*_-+{}|'?/".indexOf(currentChar) >= 0)) ) { 
 					nextState = 0; 
@@ -193,7 +200,7 @@ public class EmailValidator {
 				break;
 			
 			
-			case 2: // handle domain
+			case 2: // handle domain -> 3
 				
 				if (currentChar == '-' && (prevChar == '@' || prevChar == '.')) {
 					badHyphen = true;
@@ -222,7 +229,7 @@ public class EmailValidator {
 				}
 				break;
 				
-			case 3:
+			case 3: // last dot state -> 4
 				// After '.', requires alphabetic char 
 				if (isAlpha (currentChar)) { 
 					nextState = 4; 
@@ -232,7 +239,7 @@ public class EmailValidator {
 				}
 				break;
 				
-			case 4: 
+			case 4: // **Final accepting     TLD state -> 3 or 4
 				// Continue accepting until a non-alphabetic char is entered
 				if (currentChar == '-') { 
 					if (input.length() == emailSize + 1) {
@@ -256,7 +263,7 @@ public class EmailValidator {
 			    displayDebuggingInfo();
 			    moveToNextCharacter();        // <<< ADDED: advance character
 			    state = nextState;            // <<< ADDED: commit transition
-			    finalState = (state == 4);    // <<< ADDED: accepting if in state 3
+			    finalState = (state == 4);    // <<< ADDED: accepting if in state 4
 			    nextState = -1;               // <<< ADDED: reset
 			}
 		}
@@ -277,7 +284,7 @@ public class EmailValidator {
 
 			// Otherwise, report specific error
 			switch (state) {                                                                                       
-			    case 0:
+			    case 0: // Local part errors
 			    	if (otherChar) {
 			    		return emailValidatorErrorMessage + "Invalid character in local part of email.\n";	
 			    	}
@@ -288,10 +295,10 @@ public class EmailValidator {
 			    		return emailValidatorErrorMessage + "Email can't start with '.'.\n";	
 			    	}
 			    	return emailValidatorErrorMessage + "Missing '@' to transition from local part to domain.\n";
-			    case 1:
+			    case 1: // Invalid character after any dot in local
 			    	return emailValidatorErrorMessage + "Only alphanumeric or \"~`!#$%^&*_-+{}|'?/\" are allowed between '.' in the local part of email.\n";
 			    		
-			    case 2:                                                                                            
+			    case 2: // Domain errors                                                                                           
 			        if (prevChar == '@') { 
 			        		if (badHyphen) {
 			        			return emailValidatorErrorMessage + "Domain can't start with a hyphen.\n";
@@ -304,9 +311,9 @@ public class EmailValidator {
 			        }
 			        return emailValidatorErrorMessage + "Domain must start with a letter or digit.\n";
 			        
-			    case 3:                                                                                           
+			    case 3: // No valid TLD                                                                                          
 			        return emailValidatorErrorMessage + "The character immediately after the last '.' must be alphabetic (A-Z or a-z).\n"; 
-			    case 4: 
+			    case 4: // Accepting state but problem with TLD
 			    	if (currentChar == '-') {
 			    		return emailValidatorErrorMessage + "Email can not end with hyphen.\n";			    		
 			    	}
