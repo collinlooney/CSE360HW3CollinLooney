@@ -125,7 +125,7 @@ public class EmailValidator {
 		validLocal = false;					// Reset validLocal
 		otherChar = false;       			// Reset otherChar
 		badHyphen = false;					// Reset badHyphen flag
-		atIndex = -1;                       // Index number for @ sign (-1 if none)
+		atIndex = -1;                       // Reset index number for @ sign (-1 if none)
 		dotCount = 0;						// Reset dotCount
 		totalDots = 0;						// Reset totalDots
 		emailSize = 0;						// Initialize the email size
@@ -225,6 +225,7 @@ public class EmailValidator {
 					nextState = 2; 
 					emailSize++;
 				} else {
+					otherChar = true;
 					running = false; 
 				}
 				break;
@@ -302,10 +303,11 @@ public class EmailValidator {
 			        if (prevChar == '@') { 
 			        		if (badHyphen) {
 			        			return emailValidatorErrorMessage + "Domain can't start with a hyphen.\n";
-			        		}
-			   
+			        		}			   
 			        } else if (currentChar == '-' && prevChar == '.') {
 			        	return emailValidatorErrorMessage + "A hyphen can not follow a '.' in the domain.\n"; 
+			        } else if (otherChar) {
+			        	return emailValidatorErrorMessage + "Invalid char in the domain.\n"; 
 			        } else {
 			            return emailValidatorErrorMessage + "A '.' must appear in the domain and the character immediately before '.' must be alphanumeric.\n"; 
 			        }
@@ -317,8 +319,7 @@ public class EmailValidator {
 			    	if (currentChar == '-') {
 			    		return emailValidatorErrorMessage + "Email can not end with hyphen.\n";			    		
 			    	}
-			        return emailValidatorErrorMessage + "Only alphabetic characters or hyphens are allowed in TLD.\n";
-			    
+			        return emailValidatorErrorMessage + "Only alphabetic characters or hyphens are allowed in TLD.\n";			    
 			    default:                                                                                          
 			        return emailValidatorErrorMessage + "Invalid email format.\n";                                 
 			}        

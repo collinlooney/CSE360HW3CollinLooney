@@ -68,6 +68,11 @@ public class EmailValidatorTest {
         assertEquals("\nEMAIL ERROR: Domain can't start with a hyphen.\n",
             EmailValidator.checkForValidEmail("user@-domain.com"));
     }
+    @Test
+    public void testDomainMustStartWithLetterOrDigit() {
+        assertEquals("\nEMAIL ERROR: Domain must start with a letter or digit.\n",
+            EmailValidator.checkForValidEmail("user@.com"));
+    }
 
     @Test
     public void testHyphenAfterDotInDomain() {
@@ -80,13 +85,11 @@ public class EmailValidatorTest {
         assertEquals("\nEMAIL ERROR: A '.' must appear in the domain and the character immediately before '.' must be alphanumeric.\n",
             EmailValidator.checkForValidEmail("user@domain-.com"));
     }
-
     @Test
-    public void testDomainMustStartWithLetterOrDigit() {
-        assertEquals("\nEMAIL ERROR: Domain must start with a letter or digit.\n",
-            EmailValidator.checkForValidEmail("user@.com"));
+    public void testInvalidCharinDomain() {
+        assertEquals("\nEMAIL ERROR: Invalid char in the domain.\n",
+            EmailValidator.checkForValidEmail("user@domai%n.com"));
     }
-
     @Test
     public void testTldMustStartWithAlpha() {
         assertEquals("\nEMAIL ERROR: The character immediately after the last '.' must be alphabetic (A-Z or a-z).\n",
@@ -104,4 +107,5 @@ public class EmailValidatorTest {
         assertEquals("\nEMAIL ERROR: Only alphabetic characters or hyphens are allowed in TLD.\n",
             EmailValidator.checkForValidEmail("user@domain.c_m"));
     }
+    
 }
