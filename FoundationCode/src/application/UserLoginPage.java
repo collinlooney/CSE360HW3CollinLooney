@@ -37,6 +37,7 @@ public class UserLoginPage {
         errorLabel.setStyle("-fx-text-fill: red; -fx-font-size: 12px;");
 
         Button loginButton = new Button("Login");
+        loginButton.setDefaultButton(true); // 'Enter' will click the button 
         
         loginButton.setOnAction(a -> {
         	// Retrieve user inputs
@@ -73,13 +74,14 @@ public class UserLoginPage {
                                                 user.setEmail(email);
 						if (databaseHelper.login(user)) {
                                                         // If user has multiple roles, go to role selection page
+														databaseHelper.setCurrentUserName(user.getUserName());
                                                         if (roles.size() > 1) {
                                                                 welcomeLoginPage.show(primaryStage, user);
                                                         } else {
                                                                 // Only has 1 role, immediately go there
                                                                 Role r = roles.get(0);
                                                                 if (r == Role.ADMIN) {
-                                                                        new AdminHomePage(databaseHelper).show(primaryStage);
+                                                                        new AdminHomePage(databaseHelper).show(primaryStage, user);
                                                                 } else if (r == Role.BASIC_USER) {
                                                                         new UserHomePage(databaseHelper).show(primaryStage);
                                                                 }
@@ -100,6 +102,7 @@ public class UserLoginPage {
 			}
         });
         Button returnButton = Logout.LogoutButton(primaryStage, databaseHelper); //return button added to go back if needed 
+        returnButton.setCancelButton(true); // 'ESC' will trigger
         returnButton.setText("Return");
         
         VBox layout = new VBox(10);

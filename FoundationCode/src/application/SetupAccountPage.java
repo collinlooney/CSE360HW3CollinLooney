@@ -27,7 +27,7 @@ public class SetupAccountPage {
      * @param primaryStage The primary stage where the scene will be displayed.
      */
     public void show(Stage primaryStage) {
-    	// Input fields for userName, password, and invitation code
+    	// Input fields for userName, name, password, and invitation code
         TextField userNameField = new TextField();
         userNameField.setPromptText("Enter userName");
         userNameField.setMaxWidth(250);
@@ -64,6 +64,8 @@ public class SetupAccountPage {
             
             // Validate userName input
             String usernameErrMsg = UserNameRecognizer.checkForValidUserName(userName);
+            // Validate name input
+            String nameErrMsg = NameValidator.validateName(name);
             // Validate password input
             String passwordErrMsg = PasswordRecognizer.evaluatePassword(password);
             // Validate email input (stub)
@@ -71,7 +73,7 @@ public class SetupAccountPage {
             
             // Construct multi-line error message to indicate if
             // username/password/email are invalid
-            String errMsg = usernameErrMsg + passwordErrMsg + emailErrMsg;
+            String errMsg = usernameErrMsg  + passwordErrMsg + nameErrMsg + emailErrMsg;
             
 			if (!errMsg.isEmpty()) {
 				// Set Error label to contain error message(s)

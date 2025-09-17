@@ -82,7 +82,7 @@ public class AdminOneTimePasswordCreatePage {
 			}
 		});
 
-		VBox layout = new VBox(10, userNameField, setPasswordButton, msgLabel);
+		VBox layout = new VBox(10, userNameField, passwordField, setPasswordButton, msgLabel);
 		layout.setStyle("-fx-padding: 20; -fx-alignment: center;");
 
 		primaryStage.setScene(new Scene(layout, 800, 400));
