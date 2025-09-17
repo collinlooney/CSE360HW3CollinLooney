@@ -79,7 +79,7 @@ public class UserLoginPage {
                                                                 // Only has 1 role, immediately go there
                                                                 Role r = roles.get(0);
                                                                 if (r == Role.ADMIN) {
-                                                                        new AdminHomePage(databaseHelper).show(primaryStage);
+                                                                        new AdminHomePage(databaseHelper).show(primaryStage, user);
                                                                 } else if (r == Role.BASIC_USER) {
                                                                         new UserHomePage(databaseHelper).show(primaryStage);
                                                                 }
