@@ -27,7 +27,24 @@ public class AdminHomePage {
 		 this.databaseHelper = databaseHelper; 
 	 }
 	
-    public void show(Stage primaryStage, User user) {
+	public void show(Stage primaryStage) { // How I implemented AdminListAllUsers; leaving here for now 
+        try {
+            String current = databaseHelper.getCurrentUserName();
+            if (current != null && !current.isBlank()) {
+                User u = databaseHelper.getUserByUserName(current);
+                if (u != null) {
+                    show(primaryStage, u);
+                    return;
+                }
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        
+        new SetupLoginSelectionPage(databaseHelper).show(primaryStage);
+    }
+	
+	public void show(Stage primaryStage, User user) {
 
     	// BorderPane is ideal for a top menu bar and center content
         BorderPane layout = new BorderPane();
@@ -38,13 +55,22 @@ public class AdminHomePage {
         // --- Create the "Session" Menu ---
         Menu sessionMenu = new Menu("Session");
         
+        MenuItem returnItem = new MenuItem("Return to Welcome");
+        returnItem.setOnAction(e -> {
+            if (user != null) {
+                new WelcomeLoginPage(databaseHelper).show(primaryStage, user);
+            } else {
+                new SetupLoginSelectionPage(databaseHelper).show(primaryStage);
+            }
+        });
+        
         MenuItem logoutItem = new MenuItem("Logout");
         logoutItem.setOnAction(e -> {
             new SetupLoginSelectionPage(databaseHelper).show(primaryStage);
             primaryStage.setTitle("Login / Create Account");
         });
         
-        sessionMenu.getItems().add(logoutItem);
+        sessionMenu.getItems().addAll(returnItem, logoutItem);
 
         // --- Create the "User Management" Menu ---
         Menu userManagementMenu = new Menu("User Management");
@@ -56,31 +82,21 @@ public class AdminHomePage {
 
         MenuItem createOtpItem = new MenuItem("Create One-Time Password");
         createOtpItem.setOnAction(e -> {
-            new AdminOneTimePasswordCreatePage(databaseHelper).show(primaryStage, user.getUserName());
+            new AdminOneTimePasswordCreatePage(databaseHelper).show(primaryStage, (user!= null ? user.getUserName() : ""));
         });
 
-        MenuItem deleteUserItem = new MenuItem("Delete User");
-        deleteUserItem.setOnAction(e -> {
-        	//to be added when logic is implemented 
-        });
 
-        MenuItem listUsersItem = new MenuItem("List All Users");
+        MenuItem listUsersItem = new MenuItem("List All Users"); // removed update and delete buttons, since this is done through the list
         listUsersItem.setOnAction(e -> {
-        	//to be added when logic is implemented 
+            new AdminListAllUsers(databaseHelper).show(primaryStage);
         });
 
-        MenuItem updateUserItem = new MenuItem("Update User");
-        updateUserItem.setOnAction(e -> {
-            //to be added when logic is implemented 
-        });
 
         // Add all admin actions as MenuItems to this menu
         userManagementMenu.getItems().addAll(
             inviteUserItem,
             createOtpItem,
-            deleteUserItem,
-            listUsersItem,
-            updateUserItem
+            listUsersItem
         );
 
         // Add both Menus to the MenuBar

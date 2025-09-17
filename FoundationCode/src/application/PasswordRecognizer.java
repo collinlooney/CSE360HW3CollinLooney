@@ -40,6 +40,7 @@ public class PasswordRecognizer {
 	private static boolean longEnough;					// The flag specifies input is >= 8 digits
 	private static boolean otherChar;					// The flag specifies invalid character
 														// was found
+	private static boolean debug = false; 				// quiets the FSM text output. Toggle to 'TRUE' if you want to see it. 
 	
 	/**********
 	 * This method is a mechanical transformation of a Directed Graph diagram into a Java
@@ -71,23 +72,24 @@ public class PasswordRecognizer {
 		otherChar = false;                  // Reset the boolean flag
 		running = true;						// Start the loop
 		
+		
 		while (running) {
 			// The cascading if statement sequentially tries the current character against all of the
 			// valid transitions
 			if (currentChar >= 'A' && currentChar <= 'Z') {
-				System.out.println("Upper case letter found");
+				if (debug) System.out.println("Upper case letter found");
 				charCounter++;
 				upperCase = true;
 			} else if (currentChar >= 'a' && currentChar <= 'z') {
-				System.out.println("Lower case letter found");
+				if (debug) System.out.println("Lower case letter found");
 				charCounter++;
 				lowerCase = true;
 			} else if (currentChar >= '0' && currentChar <= '9') {
-				System.out.println("Digit found");
+				if (debug) System.out.println("Digit found");
 				charCounter++;
 				numericChar = true;
 			} else if ("~`!@#$%^&*()_-+{}[]|:,.?/".indexOf(currentChar) >= 0) {
-				System.out.println("Special character found");
+				if (debug) System.out.println("Special character found");
 				charCounter++;
 				specialChar = true;
 			} else {
@@ -96,7 +98,7 @@ public class PasswordRecognizer {
 				break;
 			}
 			if (charCounter >= 8) {
-				System.out.println("At least 8 characters found");
+				if (debug) System.out.println("At least 8 characters found");
 				longEnough = true;
 			}
 			
@@ -106,7 +108,7 @@ public class PasswordRecognizer {
 			else
 				currentChar = input.charAt(charCounter);
 			
-			System.out.println();
+			if (debug) System.out.println();
 		}
 		
 		String errMessage = "";

@@ -18,7 +18,8 @@ public final class Logout {
         
         logoutBtn.setOnAction(e -> {
             try {
-                new SetupLoginSelectionPage(databaseHelper).show(stage);
+                databaseHelper.setCurrentUserName(null); 
+            	new SetupLoginSelectionPage(databaseHelper).show(stage);
                 stage.setTitle("Login / Create Account");
             } catch (Exception ex) {
                 ex.printStackTrace();
