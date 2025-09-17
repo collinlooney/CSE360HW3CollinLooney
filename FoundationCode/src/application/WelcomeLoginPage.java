@@ -23,10 +23,16 @@ public class WelcomeLoginPage {
     	VBox layout = new VBox(5);
 	    layout.setStyle("-fx-alignment: center; -fx-padding: 20;");
 	    
-	    layout.getChildren().add(Logout.LogoutButton(primaryStage, databaseHelper));
+	    Button logoutBtn = Logout.LogoutButton(primaryStage, databaseHelper);
+	    logoutBtn.defaultButtonProperty().unbind();  // fixes default functionality 
+	    logoutBtn.setDefaultButton(false);
+	    logoutBtn.setCancelButton(true); // 'ESC logs out' 
+	    layout.getChildren().add(logoutBtn);
 	    
 	    Label welcomeLabel = new Label("Welcome!!");
 	    welcomeLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold;");
+	    
+	    Button defaultRoleButton = null; 
 
 	    // For each role a user has, give them a button to continue to that page
 	    for (Role r : user.getRoles()) {
@@ -38,7 +44,13 @@ public class WelcomeLoginPage {
 				    new UserHomePage(databaseHelper).show(primaryStage);
 			    }
 		    });
-
+		    
+		    if (r == Role.ADMIN) {
+		        defaultRoleButton = b; 
+		    } else if (r == Role.BASIC_USER && defaultRoleButton == null && !user.hasAdmin()) {
+		        defaultRoleButton = b; 
+		    }	
+		    
 		    layout.getChildren().add(b);
 	    }
 	    
@@ -64,5 +76,10 @@ public class WelcomeLoginPage {
 	    // Set the scene to primary stage
 	    primaryStage.setScene(welcomeScene);
 	    primaryStage.setTitle("Welcome Page");
+	    
+	    if (defaultRoleButton != null) { // initial focus is default role 
+	    	Button toFocus = defaultRoleButton;
+	    	Platform.runLater(toFocus::requestFocus);
+	    }
     }
 }

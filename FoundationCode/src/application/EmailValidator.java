@@ -11,7 +11,7 @@ public class EmailValidator {
 	 *
 	 * <p> Derived structure from UserNameRecognizer by Lynn Robert Carter © 2024. </p>
 	 *
-	 * @author Collin Looney
+	 * @author Jonathan Waterway, Collin Looney
 	 * @version 1.00  2025-09-15  Initial version based on UserNameRecognizer FSM style
 	 */
 

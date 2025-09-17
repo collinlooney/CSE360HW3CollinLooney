@@ -27,7 +27,28 @@ public class AdminHomePage {
 		 this.databaseHelper = databaseHelper; 
 	 }
 	
+<<<<<<< HEAD
     public void show(Stage primaryStage, User user) {
+=======
+	public void show(Stage primaryStage) { // How I implemented AdminListAllUsers; leaving here for now 
+        try {
+            String current = databaseHelper.getCurrentUserName();
+            if (current != null && !current.isBlank()) {
+                User u = databaseHelper.getUserByUserName(current);
+                if (u != null) {
+                    show(primaryStage, u);
+                    return;
+                }
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        
+        new SetupLoginSelectionPage(databaseHelper).show(primaryStage);
+    }
+	
+	public void show(Stage primaryStage, User user) {
+>>>>>>> d00b58f (Admin: merged MenuBar dashboard + Return to Welcome; List Users; Delete stub; session tracking; last-admin protection; login/logout tweaks)
 
     	// BorderPane is ideal for a top menu bar and center content
         BorderPane layout = new BorderPane();
@@ -38,13 +59,29 @@ public class AdminHomePage {
         // --- Create the "Session" Menu ---
         Menu sessionMenu = new Menu("Session");
         
+<<<<<<< HEAD
+=======
+        MenuItem returnItem = new MenuItem("Return to Welcome");
+        returnItem.setOnAction(e -> {
+            if (user != null) {
+                new WelcomeLoginPage(databaseHelper).show(primaryStage, user);
+            } else {
+                new SetupLoginSelectionPage(databaseHelper).show(primaryStage);
+            }
+        });
+        
+>>>>>>> d00b58f (Admin: merged MenuBar dashboard + Return to Welcome; List Users; Delete stub; session tracking; last-admin protection; login/logout tweaks)
         MenuItem logoutItem = new MenuItem("Logout");
         logoutItem.setOnAction(e -> {
             new SetupLoginSelectionPage(databaseHelper).show(primaryStage);
             primaryStage.setTitle("Login / Create Account");
         });
         
+<<<<<<< HEAD
         sessionMenu.getItems().add(logoutItem);
+=======
+        sessionMenu.getItems().addAll(returnItem, logoutItem);
+>>>>>>> d00b58f (Admin: merged MenuBar dashboard + Return to Welcome; List Users; Delete stub; session tracking; last-admin protection; login/logout tweaks)
 
         // --- Create the "User Management" Menu ---
         Menu userManagementMenu = new Menu("User Management");
@@ -56,6 +93,7 @@ public class AdminHomePage {
 
         MenuItem createOtpItem = new MenuItem("Create One-Time Password");
         createOtpItem.setOnAction(e -> {
+<<<<<<< HEAD
             new AdminOneTimePasswordCreatePage(databaseHelper).show(primaryStage, user.getUserName());
         });
 
@@ -73,14 +111,29 @@ public class AdminHomePage {
         updateUserItem.setOnAction(e -> {
             //to be added when logic is implemented 
         });
+=======
+            new AdminOneTimePasswordCreatePage(databaseHelper).show(primaryStage, (user!= null ? user.getUserName() : ""));
+        });
+
+
+        MenuItem listUsersItem = new MenuItem("List All Users"); // removed update and delete buttons, since this is done through the list
+        listUsersItem.setOnAction(e -> {
+            new AdminListAllUsers(databaseHelper).show(primaryStage);
+        });
+
+>>>>>>> d00b58f (Admin: merged MenuBar dashboard + Return to Welcome; List Users; Delete stub; session tracking; last-admin protection; login/logout tweaks)
 
         // Add all admin actions as MenuItems to this menu
         userManagementMenu.getItems().addAll(
             inviteUserItem,
             createOtpItem,
+<<<<<<< HEAD
             deleteUserItem,
             listUsersItem,
             updateUserItem
+=======
+            listUsersItem
+>>>>>>> d00b58f (Admin: merged MenuBar dashboard + Return to Welcome; List Users; Delete stub; session tracking; last-admin protection; login/logout tweaks)
         );
 
         // Add both Menus to the MenuBar
