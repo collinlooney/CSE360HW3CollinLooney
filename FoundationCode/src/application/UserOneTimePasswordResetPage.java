@@ -44,15 +44,6 @@ public class UserOneTimePasswordResetPage {
         HBox updateButtonBox = new HBox(updateButton);
         updateButtonBox.setAlignment(Pos.CENTER);
 
-        // Logic for user who forgot pw
-        //     - Clicks Forgot PW button on login page
-        //     - Taken to OneTimePasswordReset.java page
-        //     - On button click
-        //        - Load username from DB
-        //        - Validate username & one_time_pw match
-        //        - Update pw to new_pw & save in DB
-        //        - Taken to Login page
-
         updateButton.setOnAction(a -> {
             String userName = userNameField.getText();
             String oneTimePassword = oneTimePasswordField.getText();
@@ -89,7 +80,7 @@ public class UserOneTimePasswordResetPage {
             // Return to login page
             System.out.println("Password updated");
             new UserLoginPage(databaseHelper).show(primaryStage);
-        })
+        });
 
         VBox layout = new VBox(10);
         layout.setStyle("-fx-padding: 20; -fx-alignment: center;");
