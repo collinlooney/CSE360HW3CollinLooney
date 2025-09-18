@@ -64,12 +64,12 @@ public class SetupAccountPage {
             
             // Validate userName input
             String usernameErrMsg = UserNameRecognizer.checkForValidUserName(userName);
-            // Validate name input
-            String nameErrMsg = NameValidator.validateName(name);
             // Validate password input
             String passwordErrMsg = PasswordRecognizer.evaluatePassword(password);
-            // Validate email input (stub)
-            String emailErrMsg = "";
+            // Validate name input 
+            String nameErrMsg = NameValidator.validateName(name);
+            // Validate email input 
+            String emailErrMsg = EmailValidator.checkForValidEmail(email);
             
             // Construct multi-line error message to indicate if
             // username/password/email are invalid

@@ -232,7 +232,7 @@ public class UserNameRecognizer {
 		switch (state) {
 		case 0:
 			// State 0 is not a final state, so we can return a very specific error message
-			userNameRecognizerErrorMessage += "A UserName must start with A-Z or a-z\n";
+			userNameRecognizerErrorMessage += "A UserName must start with A-Z or a-z";
 			return userNameRecognizerErrorMessage;
 
 		case 1:
@@ -241,19 +241,19 @@ public class UserNameRecognizer {
 
 			if (userNameSize < 4) {
 				// UserName is too small
-				userNameRecognizerErrorMessage += "A UserName must have at least 4 characters.\n";
+				userNameRecognizerErrorMessage += "A UserName must have at least 4 characters.";
 				return userNameRecognizerErrorMessage;
 			}
 			else if (userNameSize > 16) {
 				// UserName is too long
 				userNameRecognizerErrorMessage += 
-					"A UserName must have no more than 16 characters.\n";
+					"A UserName must have no more than 16 characters.";
 				return userNameRecognizerErrorMessage;
 			}
 			else if (currentCharNdx < input.length()) {
 				// There are characters remaining in the input, so the input is not valid
 				userNameRecognizerErrorMessage += 
-					"A UserName may only contain the characters A-Z, a-z, 0-9, period, minus sign, or underscore\n";
+					"A UserName may only contain the characters A-Z, a-z, 0-9, period, minus sign, or underscore";
 				return userNameRecognizerErrorMessage;
 			}
 			else {
@@ -266,7 +266,7 @@ public class UserNameRecognizer {
 		case 2:
 			// State 2 is not a final state, so we can return a very specific error message
 			userNameRecognizerErrorMessage +=
-				"A UserName character after a period, minus sign, or underscore must be A-Z, a-z, 0-9.\n";
+				"A UserName character after a period, minus sign, or underscore must be A-Z, a-z, 0-9.";
 			return userNameRecognizerErrorMessage;
 			
 		default:
