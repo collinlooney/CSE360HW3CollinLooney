@@ -364,18 +364,12 @@ public class AdminUpdateUsers {
     
     // === DATABASE HELPER METHODS ===   
     // Checks if the current user is the last admin in the system
-    private boolean isLastAdmin() {
-        try {
-            databaseHelper.verifyConnection();
-            try (Connection conn = getConnection();
-                 Statement stmt = conn.createStatement();
-                 ResultSet rs = stmt.executeQuery("SELECT COUNT(*) FROM cse360users WHERE roles LIKE '%1%'")) {
-                // Returns true if there's only 1 or fewer admins 
-                return rs.next() && rs.getInt(1) <= 1;
-            }
-        } catch (Exception e) {
+    private boolean isLastAdmin(String userName) {
+    try {
+            return databaseHelper.isLastAdmin(userName);
+        } catch (SQLException e) {
             e.printStackTrace();
-            return false;  
+            return false;
         }
     }
     
