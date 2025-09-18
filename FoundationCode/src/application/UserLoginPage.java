@@ -36,7 +36,14 @@ public class UserLoginPage {
         loginButton.setDefaultButton(true); // 'Enter' will click the button 
         HBox loginButtonBox = new HBox(loginButton);
         loginButtonBox.setAlignment(Pos.CENTER);
-        
+ 
+        Button resetPasswordButton = new Button("Reset Password");
+        HBox resetPasswordButtonBox = new HBox(resetPasswordButton);
+        resetPasswordButtonBox.setAlignment(Pos.CENTER);
+        resetPasswordButton.setOnAction(a -> {
+                new UserOneTimePasswordResetPage(databaseHelper).show(primaryStage);
+        });
+
         // Input fields
         TextField userNameField = new TextField();
         userNameField.setPromptText("Enter userName");
@@ -156,6 +163,7 @@ public class UserLoginPage {
             userNameBox,
             passwordBox,
             loginButtonBox,
+            resetPasswordButtonBox,
             errorLabel
         );
         primaryStage.setScene(new Scene(layout, 800, 400));
