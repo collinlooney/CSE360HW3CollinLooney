@@ -1,9 +1,13 @@
 package application;
 
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import javafx.scene.layout.Priority;
+
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -13,6 +17,7 @@ import databasePart1.*;
 /**
  * SetupAccountPage class handles the account setup process for new users.
  * Users provide their userName, password, name, email and a valid invitation code to register.
+ *  09/18/25 - added green check and red x for validation confirmation - Jonathan Waterway
  */
 public class SetupAccountPage {
 	
@@ -21,38 +26,63 @@ public class SetupAccountPage {
     public SetupAccountPage(DatabaseHelper databaseHelper) {
         this.databaseHelper = databaseHelper;
     }
+ // Helper method to build a field + checkmark row
+    
+    private HBox buildFieldRow(TextField field, String prompt, Label checkLabel) {
+        field.setPromptText(prompt);
+        field.setMaxWidth(250);
+
+        checkLabel.setPrefWidth(20); // Reserve space for check/X
+        checkLabel.setAlignment(Pos.CENTER_LEFT);
+
+        HBox box = new HBox(5, field, checkLabel);
+        HBox.setHgrow(field, Priority.ALWAYS);
+        box.setAlignment(Pos.CENTER);
+        box.setTranslateX(+10); // adjust centering
+        return box;
+    }
 
     /**
      * Displays the Setup Account page in the provided stage.
      * @param primaryStage The primary stage where the scene will be displayed.
      */
     public void show(Stage primaryStage) {
-    	// Input fields for userName, name, password, and invitation code
-        TextField userNameField = new TextField();
-        userNameField.setPromptText("Enter userName");
-        userNameField.setMaxWidth(250);
+    	 // Return button (top)
+        Button returnButton = Logout.LogoutButton(primaryStage, databaseHelper);
+        returnButton.setText("Return");
+        HBox returnButtonBox = new HBox(returnButton);
+        returnButtonBox.setAlignment(Pos.CENTER); 
 
-        PasswordField passwordField = new PasswordField();
-        passwordField.setPromptText("Enter Password");
-        passwordField.setMaxWidth(250);
-
-        TextField nameField = new TextField();
-        nameField.setPromptText("Enter name");
-        nameField.setMaxWidth(250);
-
-        TextField emailField = new TextField();
-        emailField.setPromptText("Enter email");
-        emailField.setMaxWidth(250);
+        // Setup button (centered)
+        Button setupButton = new Button("Setup");
+        HBox setupButtonBox = new HBox(setupButton);
+        setupButtonBox.setAlignment(Pos.CENTER);
         
-        TextField inviteCodeField = new TextField();
-        inviteCodeField.setPromptText("Enter InvitationCode");
-        inviteCodeField.setMaxWidth(250);
-        
-        // Label to display error messages for invalid input or registration issues
+        // Label to display error messages for invalid input
         Label errorLabel = new Label();
         errorLabel.setStyle("-fx-text-fill: red; -fx-font-size: 12px;");
+        
+        TextField userNameField = new TextField();
+        Label userNameCheck = new Label();
+        HBox userNameBox = buildFieldRow(userNameField, "Enter Admin userName", userNameCheck);
 
-        Button setupButton = new Button("Setup");
+        PasswordField passwordField = new PasswordField();
+        Label passwordCheck = new Label();
+        HBox passwordBox = buildFieldRow(passwordField, "Enter Password", passwordCheck);
+
+        TextField nameField = new TextField();
+        Label nameCheck = new Label();
+        HBox nameBox = buildFieldRow(nameField, "Enter name", nameCheck);
+
+        TextField emailField = new TextField();
+        Label emailCheck = new Label();
+        HBox emailBox = buildFieldRow(emailField, "Enter email", emailCheck);
+        
+        TextField inviteCodeField = new TextField();
+        Label inviteCheck = new Label();
+        HBox inviteBox = buildFieldRow(inviteCodeField, "Enter invitationCode", inviteCheck);
+
+
         
         setupButton.setOnAction(a -> {
         	// Retrieve user input
@@ -62,14 +92,44 @@ public class SetupAccountPage {
             String email = emailField.getText();
             String code = inviteCodeField.getText();
             
-            // Validate userName input
+            
+            // Validate username input
             String usernameErrMsg = UserNameRecognizer.checkForValidUserName(userName);
+            if (usernameErrMsg.isEmpty()) {
+                userNameCheck.setText("✅");
+                userNameCheck.setStyle("-fx-text-fill: green;");
+            } else {
+                userNameCheck.setText("❌ ");
+                userNameCheck.setStyle("-fx-text-fill: red;");
+            }
             // Validate password input
             String passwordErrMsg = PasswordRecognizer.evaluatePassword(password);
+            if (passwordErrMsg.isEmpty()) {
+                passwordCheck.setText("✅");
+                passwordCheck.setStyle("-fx-text-fill: green;");
+            } else {
+                passwordCheck.setText("❌ ");
+                passwordCheck.setStyle("-fx-text-fill: red;");
+            }
             // Validate name input 
             String nameErrMsg = NameValidator.validateName(name);
+            if (nameErrMsg.isEmpty()) {
+                nameCheck.setText("✅");
+                nameCheck.setStyle("-fx-text-fill: green;");
+            } else {
+                nameCheck.setText("❌ ");
+                nameCheck.setStyle("-fx-text-fill: red;");
+            }
             // Validate email input 
             String emailErrMsg = EmailValidator.checkForValidEmail(email);
+            if (emailErrMsg.isEmpty()) {
+                emailCheck.setText("✅");
+                emailCheck.setStyle("-fx-text-fill: green;");
+            } else {
+                emailCheck.setText("❌ ");
+                emailCheck.setStyle("-fx-text-fill: red;");
+            }
+                 
             
             // Construct multi-line error message to indicate if
             // username/password/email are invalid
@@ -98,6 +158,8 @@ public class SetupAccountPage {
 							new WelcomeLoginPage(databaseHelper).show(primaryStage, user);
 						} else {
 							errorLabel.setText("Please enter a valid invitation code");
+							inviteCheck.setText("❌ ");
+				            inviteCheck.setStyle("-fx-text-fill: red;");
 						}
 					} else {
 						errorLabel.setText("This useruserName is taken!!.. Please use another to setup an account");
@@ -110,14 +172,29 @@ public class SetupAccountPage {
 			}
         });
         
-        Button returnButton = Logout.LogoutButton(primaryStage, databaseHelper);
-        returnButton.setText("Return");
+        //Button returnButton = Logout.LogoutButton(primaryStage, databaseHelper);
+        //returnButton.setText("Return");
         
+        /*VBox layout = new VBox(10);
+        layout.setStyle("-fx-padding: 20; -fx-alignment: center;");
+
+        *layout.getChildren().addAll(returnButton, userNameField, passwordField, nameField, emailField, inviteCodeField, setupButton, errorLabel);
+         */
+        // Build layout
         VBox layout = new VBox(10);
         layout.setStyle("-fx-padding: 20; -fx-alignment: center;");
 
-        layout.getChildren().addAll(returnButton, userNameField, passwordField, nameField, emailField, inviteCodeField, setupButton, errorLabel);
-
+        // Add everything into VBox
+        layout.getChildren().addAll(
+            returnButtonBox,   // return button row
+            userNameBox,
+            passwordBox,
+            nameBox,
+            emailBox,
+            inviteBox,   
+            setupButtonBox,    // setup button centered
+            errorLabel
+        );
         primaryStage.setScene(new Scene(layout, 800, 400));
         primaryStage.setTitle("Account Setup");
         primaryStage.show();

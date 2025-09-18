@@ -149,7 +149,7 @@ public class EmailValidator {
 		if (atIndex == -1) return "\nEMAIL ERROR: Missing '@' symbol.";  // Return error if no @
 		
 		// find total # of dots in input after @ symbol
-		for (int i = atIndex; i < input.length() - 1; i++) {
+		for (int i = atIndex; i < input.length(); i++) {
 			char c = input.charAt(i);
 			if (c == '.') totalDots++;				
 		}
