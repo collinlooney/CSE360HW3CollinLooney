@@ -6,10 +6,11 @@ import javafx.scene.layout.VBox;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 import javafx.geometry.Pos;
+
+import java.sql.SQLException;
 import java.util.ArrayList;
 
 import databasePart1.*;
-
 
 
 public class UserOneTimePasswordResetPage {
