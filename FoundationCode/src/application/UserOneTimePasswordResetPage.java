@@ -6,7 +6,6 @@ import javafx.scene.layout.VBox;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 import javafx.geometry.Pos;
-import javafx.scene.layout.Priority;
 import java.util.ArrayList;
 
 import databasePart1.*;
@@ -51,8 +50,13 @@ public class UserOneTimePasswordResetPage {
 
             // Validate username & one time password match
             User user = new User(userName, "", "", oneTimePassword, new ArrayList<>());
-            if (!databaseHelper.login(user)) {
-                errorLabel.setText("ERROR: Invalid one time password");
+            try {
+                if (!databaseHelper.login(user)) {
+                    errorLabel.setText("ERROR: Invalid one time password");
+                    return;
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
                 return;
             }
 
