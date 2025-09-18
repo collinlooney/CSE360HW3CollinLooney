@@ -35,7 +35,15 @@ public enum Role {
 
 	// Helper method to get the String representation of a Role's variant
 	public String display() {
-		String lower = this.name().toLowerCase();
-		return Character.toUpperCase(lower.charAt(0)) + lower.substring(1);
+	    switch (this) {
+	        case ADMIN:
+	            return "Admin";
+	        case BASIC_USER:
+	            return "Basic User";
+	            
+	            // A fall back just in case other roles are added
+	        default:
+	            return this.name();
+	    }
 	}
 }
