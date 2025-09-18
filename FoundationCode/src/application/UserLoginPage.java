@@ -3,7 +3,10 @@ package application;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
+import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
+import javafx.geometry.Pos;
+import javafx.scene.layout.Priority;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -13,6 +16,7 @@ import databasePart1.*;
 /**
  * The UserLoginPage class provides a login interface for users to access their accounts.
  * It validates the user's credentials and navigates to the appropriate page upon successful login.
+ * 09/18/25 - added green check and red x for validation confirmation - Jonathan Waterway
  */
 public class UserLoginPage {
 	
@@ -23,7 +27,17 @@ public class UserLoginPage {
     }
 
     public void show(Stage primaryStage) {
-    	// Input field for the user's userName, password
+    
+        // Label to display error messages
+        Label errorLabel = new Label();
+        errorLabel.setStyle("-fx-text-fill: red; -fx-font-size: 12px;");
+
+        Button loginButton = new Button("Login");
+        loginButton.setDefaultButton(true); // 'Enter' will click the button 
+        HBox loginButtonBox = new HBox(loginButton);
+        loginButtonBox.setAlignment(Pos.CENTER);
+        
+        // Input fields
         TextField userNameField = new TextField();
         userNameField.setPromptText("Enter userName");
         userNameField.setMaxWidth(250);
@@ -31,13 +45,27 @@ public class UserLoginPage {
         PasswordField passwordField = new PasswordField();
         passwordField.setPromptText("Enter Password");
         passwordField.setMaxWidth(250);
-        
-        // Label to display error messages
-        Label errorLabel = new Label();
-        errorLabel.setStyle("-fx-text-fill: red; -fx-font-size: 12px;");
 
-        Button loginButton = new Button("Login");
-        loginButton.setDefaultButton(true); // 'Enter' will click the button 
+        // Checkmark labels
+        Label userNameCheck = new Label();
+        userNameCheck.setPrefWidth(20);
+        userNameCheck.setAlignment(Pos.CENTER_LEFT);
+
+        Label passwordCheck = new Label();
+        passwordCheck.setPrefWidth(20);
+        passwordCheck.setAlignment(Pos.CENTER_LEFT);
+
+        // HBoxes for aligned rows
+        HBox userNameBox = new HBox(5, userNameField, userNameCheck);
+        HBox.setHgrow(userNameField, Priority.ALWAYS);
+        userNameBox.setAlignment(Pos.CENTER);
+        userNameBox.setTranslateX(+10);
+
+        HBox passwordBox = new HBox(5, passwordField, passwordCheck);
+        HBox.setHgrow(passwordField, Priority.ALWAYS);
+        passwordBox.setAlignment(Pos.CENTER);
+        passwordBox.setTranslateX(+10);
+
         
         loginButton.setOnAction(a -> {
         	// Retrieve user inputs
@@ -45,8 +73,22 @@ public class UserLoginPage {
             String password = passwordField.getText();
             // Validate userName input
             String usernameErrMsg = UserNameRecognizer.checkForValidUserName(userName);
+            if (usernameErrMsg.isEmpty()) {
+                userNameCheck.setText("✅");
+                userNameCheck.setStyle("-fx-text-fill: green;");
+            } else {
+                userNameCheck.setText("❌ ");
+                userNameCheck.setStyle("-fx-text-fill: red;");
+            }
             // Validate password input
             String passwordErrMsg = PasswordRecognizer.evaluatePassword(password);
+            if (passwordErrMsg.isEmpty()) {
+                passwordCheck.setText("✅");
+                passwordCheck.setStyle("-fx-text-fill: green;");
+            } else {
+                passwordCheck.setText("❌ ");
+                passwordCheck.setStyle("-fx-text-fill: red;");
+            }
             
             // Construct multi-line error message to indicate if
             // username/password are invalid
@@ -92,7 +134,7 @@ public class UserLoginPage {
 						}
 					} else {
 						// Display an error if the account does not exist
-						errorLabel.setText("user account doesn't exists");
+						errorLabel.setText("User account doesn't exist!");
 					}
 
 				} catch (SQLException e) {
@@ -107,8 +149,15 @@ public class UserLoginPage {
         
         VBox layout = new VBox(10);
         layout.setStyle("-fx-padding: 20; -fx-alignment: center;");
-        layout.getChildren().addAll(returnButton, userNameField, passwordField, loginButton, errorLabel);
 
+        // Add rows instead of raw fields
+        layout.getChildren().addAll(
+            returnButton,
+            userNameBox,
+            passwordBox,
+            loginButtonBox,
+            errorLabel
+        );
         primaryStage.setScene(new Scene(layout, 800, 400));
         primaryStage.setTitle("User Login");
         primaryStage.show();
