@@ -57,12 +57,15 @@ public class AdminSetupPage {
             String usernameErrMsg = UserNameRecognizer.checkForValidUserName(userName);
             // Validate password input
             String passwordErrMsg = PasswordRecognizer.evaluatePassword(password);
-            // Validate email input (stub)
-            String emailErrMsg = "";
+            // Validate name input 
+            String nameErrMsg = NameValidator.validateName(name);
+            // Validate email input 
+            String emailErrMsg = EmailValidator.checkForValidEmail(email);
+           
             
             // Construct multi-line error message to indicate if
             // username/password/email are invalid
-            String errMsg = usernameErrMsg + passwordErrMsg + emailErrMsg;
+            String errMsg = usernameErrMsg + passwordErrMsg  + nameErrMsg + emailErrMsg;
             
 			if (!errMsg.isEmpty()) {
 				// Set Error label to contain error message(s)

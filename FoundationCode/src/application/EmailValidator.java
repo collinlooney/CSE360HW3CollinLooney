@@ -142,11 +142,11 @@ public class EmailValidator {
 		    if (c == '@') 
 		    	if (atIndex == -1) {
 		    	 	atIndex = i;
-		    	} else 	return "EMAIL ERROR: Multiple '@' symbols are not allowed.\n";
+		    	} else 	return "\nEMAIL ERROR: Multiple '@' symbols are not allowed.";
 		}
 		
 				
-		if (atIndex == -1) return "EMAIL ERROR: Missing '@' symbol.\n";  // Return error if no @
+		if (atIndex == -1) return "\nEMAIL ERROR: Missing '@' symbol.";  // Return error if no @
 		
 		// find total # of dots in input after @ symbol
 		for (int i = atIndex; i < input.length() - 1; i++) {
@@ -155,7 +155,7 @@ public class EmailValidator {
 		}
 		
 		if (totalDots == 0) {
-		    return "EMAIL ERROR: Missing '.' in domain.\n";
+		    return "\nEMAIL ERROR: Missing '.' in domain."; // Return error if no . after @
 		}
 				
 		
@@ -287,41 +287,41 @@ public class EmailValidator {
 			switch (state) {                                                                                       
 			    case 0: // Local part errors
 			    	if (otherChar) {
-			    		return emailValidatorErrorMessage + "Invalid character in local part of email.\n";	
+			    		return emailValidatorErrorMessage + "Invalid character in local part of email.";	
 			    	}
 			    	if (currentChar == '@' && (!validLocal)) {
-			    		return emailValidatorErrorMessage + "Email can't start with '@'.\n";	
+			    		return emailValidatorErrorMessage + "Email can't start with '@'.";	
 			    	}
 			    	if (currentChar == '.' && (!validLocal)) {
-			    		return emailValidatorErrorMessage + "Email can't start with '.'.\n";	
+			    		return emailValidatorErrorMessage + "Email can't start with '.'.";	
 			    	}
-			    	return emailValidatorErrorMessage + "Missing '@' to transition from local part to domain.\n";
+			    	return emailValidatorErrorMessage + "Missing '@' to transition from local part to domain.";
 			    case 1: // Invalid character after any dot in local
-			    	return emailValidatorErrorMessage + "Only alphanumeric or \"~`!#$%^&*_-+{}|'?/\" are allowed between '.' in the local part of email.\n";
+			    	return emailValidatorErrorMessage + "Only alphanumeric or \"~`!#$%^&*_-+{}|'?/\" are allowed between '.' in the local part of email.";
 			    		
 			    case 2: // Domain errors                                                                                           
 			        if (prevChar == '@') { 
 			        		if (badHyphen) {
-			        			return emailValidatorErrorMessage + "Domain can't start with a hyphen.\n";
+			        			return emailValidatorErrorMessage + "Domain can't start with a hyphen.";
 			        		}			   
 			        } else if (currentChar == '-' && prevChar == '.') {
-			        	return emailValidatorErrorMessage + "A hyphen can not follow a '.' in the domain.\n"; 
+			        	return emailValidatorErrorMessage + "A hyphen can not follow a '.' in the domain."; 
 			        } else if (otherChar) {
-			        	return emailValidatorErrorMessage + "Invalid char in the domain.\n"; 
+			        	return emailValidatorErrorMessage + "Invalid char in the domain."; 
 			        } else {
-			            return emailValidatorErrorMessage + "A '.' must appear in the domain and the character immediately before '.' must be alphanumeric.\n"; 
+			            return emailValidatorErrorMessage + "The character immediately before '.' must be alphanumeric."; 
 			        }
-			        return emailValidatorErrorMessage + "Domain must start with a letter or digit.\n";
+			        return emailValidatorErrorMessage + "Domain must start with a letter or digit.";
 			        
 			    case 3: // No valid TLD                                                                                          
-			        return emailValidatorErrorMessage + "The character immediately after the last '.' must be alphabetic (A-Z or a-z).\n"; 
+			        return emailValidatorErrorMessage + "The character immediately after the last '.' must be alphabetic (A-Z or a-z)."; 
 			    case 4: // Accepting state but problem with TLD
 			    	if (currentChar == '-') {
-			    		return emailValidatorErrorMessage + "Email can not end with hyphen.\n";			    		
+			    		return emailValidatorErrorMessage + "Email can not end with hyphen.";			    		
 			    	}
-			        return emailValidatorErrorMessage + "Only alphabetic characters or hyphens are allowed in TLD.\n";			    
+			        return emailValidatorErrorMessage + "Only alphabetic characters or hyphens are allowed in TLD.";			    
 			    default:                                                                                          
-			        return emailValidatorErrorMessage + "Invalid email format.\n";                                 
+			        return emailValidatorErrorMessage + "Invalid email format.";                                 
 			}        
 			
 	}
