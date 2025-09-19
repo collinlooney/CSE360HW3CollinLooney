@@ -80,7 +80,14 @@ public class DatabaseHelper {
 	            + "isUsed BOOLEAN DEFAULT FALSE, "
 		    + "expiration BIGINT)";
 	    statement.execute(invitationCodesTable);
+
+	    // Table of users with a one time password set
+	    String otpUserTable = "CREATE TABLE IF NOT EXISTS cse360otpusers ("
+		    + "id INT AUTO_INCREMENT PRIMARY KEY, "
+		    + "userName VARCHAR(255) UNIQUE)";
+	    statement.execute(otpUserTable);
 	}
+
 
 
 	// Check if the database is empty
@@ -135,6 +142,36 @@ public class DatabaseHelper {
 	    }
 	    return false; // If an error occurs, assume user doesn't exist
 	}
+
+	// Add user to table containing usernames with 1 time password set
+	public void addOtpUser(String userName) throws SQLException {
+		String sql = "INSERT INTO cse360otpusers (userName) VALUES (?)";
+		try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+			pstmt.setString(1, userName);
+			pstmt.executeUpdate();
+		}
+	}
+
+	// Remove a user from being marked as having 1 time password set
+	public void removeOtpUser(String userName) throws SQLException {
+		String sql = "DELETE FROM cse360otpusers WHERE userName = ?";
+		try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+			pstmt.setString(1, userName);
+			pstmt.executeUpdate();
+		}
+	}
+
+	// Check if a user has 1 time password set
+	public boolean isOtpUser(String userName) throws SQLException {
+		String sql = "SELECT 1 FROM cse360otpusers WHERE userName = ?";
+		try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+			pstmt.setString(1, userName);
+			try (ResultSet rs = pstmt.executeQuery()) {
+				return rs.next();
+			}
+		}
+	}
+
 
 	// Updates stored information for `userName` with `newUserInfo`.
 	// Does not update userName field.

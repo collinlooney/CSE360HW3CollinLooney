@@ -49,6 +49,17 @@ public class UserOneTimePasswordResetPage {
             String oneTimePassword = oneTimePasswordField.getText();
             String newPassword = newPasswordField.getText();
 
+            // Validate user has had one time password set by admin
+            try {
+                if (!databaseHelper.isOtpUser(userName)) {
+                    errorLabel.setText("ERROR: Contact admin to request a one time password be set for your account.");
+                    return;
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+                return;
+            }
+
             // Validate username & one time password match
             User user = new User(userName, "", "", oneTimePassword, new ArrayList<>());
             try {
@@ -79,6 +90,14 @@ public class UserOneTimePasswordResetPage {
 
             if (!updateErrMsg.isEmpty()) {
                 errorLabel.setText(updateErrMsg);
+                return;
+            }
+
+            // Remove user from one time password storage
+            try {
+                databaseHelper.removeOtpUser(userName);
+            } catch (SQLException e) {
+                e.printStackTrace();
                 return;
             }
 
