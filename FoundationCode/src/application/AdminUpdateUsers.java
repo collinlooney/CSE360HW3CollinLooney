@@ -331,7 +331,9 @@ public class AdminUpdateUsers {
             }
             
             // Check 2: Don't remove the last admin role (would break)
-            if (originalRoles.contains(Role.ADMIN) && !newRoles.contains(Role.ADMIN) && isLastAdmin()) {
+            if (originalRoles.contains(Role.ADMIN) &&
+                !newRoles.contains(Role.ADMIN) &&
+                isLastAdmin(selectedUser.getUserName())) {
                 showStatus("Cannot remove the last Administrator role from the system", false);
                 adminRoleBox.setSelected(true);  // Puts the checkbox back 
                 return;
