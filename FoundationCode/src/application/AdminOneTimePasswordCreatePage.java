@@ -72,14 +72,22 @@ public class AdminOneTimePasswordCreatePage {
 			String updateErrMsg = this.databaseHelper.updateUserInfo(userNameV, newInfo);
 			if (!updateErrMsg.isEmpty()) {
 				msgLabel.setText(updateErrMsg);
-				return;
 			} else {
+				// Adding user to one time password table
+				try {
+					this.databaseHelper.addOtpUser(userNameV);
+				} catch (SqlException e) {
+					e.printStackTrace();
+					return;
+				}
 				msgLabel.setStyle("-fx-text-fill: green; -fx-font-size: 12px;");
 				String m = "One time password set successfully\n";
 				m += "Username: '" + userNameV + "'\n";
 				m += "New password: '" + newPassword + "'\n";
 				msgLabel.setText(m);
 			}
+
+
 		});
 
 		VBox layout = new VBox(10, userNameField, passwordField, setPasswordButton, msgLabel);

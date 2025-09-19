@@ -75,9 +75,21 @@ public class UserLoginPage {
 
         
         loginButton.setOnAction(a -> {
-        	// Retrieve user inputs
+
+            // Retrieve user inputs
             String userName = userNameField.getText();
             String password = passwordField.getText();
+
+            // Check if user has had one time pw set
+            try {
+                    if (databaseHelper.isOtpUser(userName)) {
+                            errorLabel.setText("ERROR: Admin has set a one time password for your account. Please navigate to reset password page");
+                            return;
+                    }
+            } catch (SqlException e) {
+                    e.printStackTrace();
+                    return;
+            }
             // Validate userName input
             String usernameErrMsg = UserNameRecognizer.checkForValidUserName(userName);
             if (usernameErrMsg.isEmpty()) {
