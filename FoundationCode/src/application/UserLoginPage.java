@@ -86,7 +86,7 @@ public class UserLoginPage {
                             errorLabel.setText("ERROR: Admin has set a one time password for your account. Please navigate to reset password page");
                             return;
                     }
-            } catch (SqlException e) {
+            } catch (SQLException e) {
                     e.printStackTrace();
                     return;
             }

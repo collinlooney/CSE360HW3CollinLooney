@@ -55,7 +55,7 @@ public class UserOneTimePasswordResetPage {
                     errorLabel.setText("ERROR: Contact admin to request a one time password be set for your account.");
                     return;
                 }
-            } catch (SqlException e) {
+            } catch (SQLException e) {
                 e.printStackTrace();
                 return;
             }
@@ -96,7 +96,7 @@ public class UserOneTimePasswordResetPage {
             // Remove user from one time password storage
             try {
                 databaseHelper.removeOtpUser(userName);
-            } catch (SqlException e) {
+            } catch (SQLException e) {
                 e.printStackTrace();
                 return;
             }

@@ -76,7 +76,7 @@ public class AdminOneTimePasswordCreatePage {
 				// Adding user to one time password table
 				try {
 					this.databaseHelper.addOtpUser(userNameV);
-				} catch (SqlException e) {
+				} catch (SQLException e) {
 					e.printStackTrace();
 					return;
 				}
