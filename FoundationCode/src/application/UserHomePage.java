@@ -1,7 +1,12 @@
 package application;
 
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import databasePart1.DatabaseHelper; 
@@ -18,16 +23,33 @@ public class UserHomePage {
     }
 
     public void show(Stage primaryStage) {
-    	VBox layout = new VBox();
-	    layout.setStyle("-fx-alignment: center; -fx-padding: 20;");
-	    
-	    layout.getChildren().add(Logout.LogoutButton(primaryStage, databaseHelper)); //logout button CL 
+    	
+        BorderPane rootLayout = new BorderPane();
+
+        // --- 1. Create the Top Bar with a Logout Button ---
+        HBox topBar = new HBox();
+        topBar.setPadding(new Insets(10, 15, 10, 15)); // Add some spacing around the bar
+        topBar.setAlignment(Pos.CENTER_RIGHT); // This pushes content to the far right
+
+        Button logoutButton = new Button("Logout");
+        logoutButton.setOnAction(e -> new UserLoginPage(databaseHelper).show(primaryStage));
+
+        topBar.getChildren().add(logoutButton);
+        rootLayout.setTop(topBar);
+        
+    	VBox centerContent = new VBox();
+    	centerContent.setAlignment(Pos.CENTER);
+    	centerContent.setSpacing(10);
+    	
+	    //layout.getChildren().add(Logout.LogoutButton(primaryStage, databaseHelper)); //logout button CL 
 	    // Label to display Hello user
 	    Label userLabel = new Label("Hello, User!");
 	    userLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold;");
 
-	    layout.getChildren().add(userLabel);
-	    Scene userScene = new Scene(layout, 800, 400);
+	    centerContent.getChildren().add(userLabel);
+	    
+	    rootLayout.setCenter(centerContent);
+	    Scene userScene = new Scene(rootLayout, 800, 400);
 
 	    // Set the scene to primary stage
 	    primaryStage.setScene(userScene);
