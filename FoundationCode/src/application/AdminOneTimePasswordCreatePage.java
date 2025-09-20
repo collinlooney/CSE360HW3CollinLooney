@@ -20,7 +20,7 @@ public class AdminOneTimePasswordCreatePage {
 		this.databaseHelper = databaseHelper;
 	}
 
-	public void show(Stage primaryStage, String userName) {
+	public void show(Stage primaryStage, String userName, User adminCaller) {
 		// Input field for userName to set OTP
 		TextField userNameField = new TextField();
 		userNameField.setPromptText("Enter username to set a one time password for");
@@ -38,6 +38,12 @@ public class AdminOneTimePasswordCreatePage {
 
 		// Button to set the one time password
 		Button setPasswordButton = new Button("Set Password");
+
+		// Button to return to admin home page
+		Button returnHomeButton = new Button("Return to Home Page");
+		returnHomeButton.setOnAction(a -> {
+			new AdminHomePage(databaseHelper).show(primaryStage, adminCaller);
+		});
 
 		// Label to display error/success messages
 		Label msgLabel = new Label();
@@ -90,7 +96,7 @@ public class AdminOneTimePasswordCreatePage {
 
 		});
 
-		VBox layout = new VBox(10, userNameField, passwordField, setPasswordButton, msgLabel);
+		VBox layout = new VBox(10, userNameField, passwordField, setPasswordButton, returnHomeButton, msgLabel);
 		layout.setStyle("-fx-padding: 20; -fx-alignment: center;");
 
 		primaryStage.setScene(new Scene(layout, 800, 400));
