@@ -82,7 +82,7 @@ public class AdminHomePage {
 
         MenuItem createOtpItem = new MenuItem("Create One-Time Password");
         createOtpItem.setOnAction(e -> {
-            new AdminOneTimePasswordCreatePage(databaseHelper).show(primaryStage, (user!= null ? user.getUserName() : ""));
+            new AdminOneTimePasswordCreatePage(databaseHelper).show(primaryStage, "");
         });
 
 
