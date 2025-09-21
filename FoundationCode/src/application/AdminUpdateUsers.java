@@ -74,7 +74,7 @@ public class AdminUpdateUsers {
     public AdminUpdateUsers(DatabaseHelper databaseHelper, User user) {
         this.databaseHelper = databaseHelper;
         this.selectedUser = user;
-        this.currentAdminUsername = "";  
+        this.currentAdminUsername = databaseHelper.getCurrentUserName();
     }
     
     // === STAGE SETUP METHOD ===
@@ -320,7 +320,7 @@ public class AdminUpdateUsers {
             if (basicUserRoleBox.isSelected()) newRoles.add(Role.BASIC_USER);
             
             // === VALIDATION LOGIC ===
-            // These two checks prevent admins from accidentally breaking everything
+            // These three checks prevent admins from accidentally breaking everything
             
             // Check 1: Don't let admin remove their own admin role 
             if (selectedUser.getUserName().equals(currentAdminUsername) && 
