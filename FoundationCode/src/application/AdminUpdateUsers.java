@@ -339,6 +339,15 @@ public class AdminUpdateUsers {
                 return;
             }
             
+            // Check 3: Don't allow removal of user role if only role appointed 
+            if (originalRoles.contains(Role.BASIC_USER) &&
+                !newRoles.contains(Role.BASIC_USER) &&
+                originalRoles.size() == 1) {
+                showStatus("User must have at least one role (cannot remove Basic User if it's the only role)", false);
+                basicUserRoleBox.setSelected(true);  // Put the checkbox back
+                return;
+            }
+            
             // === ACTUAL UPDATE ===
             // Update user with new roles and save to database
             User updatedUser = new User(selectedUser.getUserName(), selectedUser.getName(), 
