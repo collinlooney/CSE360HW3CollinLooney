@@ -322,11 +322,12 @@ public class AdminUpdateUsers {
             // === VALIDATION LOGIC ===
             // These three checks prevent admins from accidentally breaking everything
             
-            // Check 1: Don't let admin remove their own admin role 
-            if (selectedUser.getUserName().equals(currentAdminUsername) && 
-                originalRoles.contains(Role.ADMIN) && !newRoles.contains(Role.ADMIN)) {
-                showStatus("Cannot remove your own Administrator role", false);
-                adminRoleBox.setSelected(true);  // Put the checkbox back
+            // Check 1: Must have at least one role selected
+            if (newRoles.isEmpty()) {
+                showStatus("User must have at least one role selected", false);
+                // Restore previous checkbox states
+                adminRoleBox.setSelected(originalRoles.contains(Role.ADMIN));
+                basicUserRoleBox.setSelected(originalRoles.contains(Role.BASIC_USER));
                 return;
             }
             
@@ -337,16 +338,7 @@ public class AdminUpdateUsers {
                 showStatus("Cannot remove the last Administrator role from the system", false);
                 adminRoleBox.setSelected(true);  // Puts the checkbox back 
                 return;
-            }
-            
-            // Check 3: Don't allow removal of user role if only role appointed 
-            if (originalRoles.contains(Role.BASIC_USER) &&
-                !newRoles.contains(Role.BASIC_USER) &&
-                originalRoles.size() == 1) {
-                showStatus("User must have at least one role (cannot remove Basic User if it's the only role)", false);
-                basicUserRoleBox.setSelected(true);  // Put the checkbox back
-                return;
-            }
+            }            
             
             // === ACTUAL UPDATE ===
             // Update user with new roles and save to database
