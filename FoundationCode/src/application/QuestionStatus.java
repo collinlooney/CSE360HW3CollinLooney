@@ -1,9 +1,9 @@
 package application;
 
 
-/**
- * Represents the status of a Question.
- */
+
+ // Represents the status of a Question.
+
 public enum QuestionStatus {
     OPEN,       // The question is active and awaiting answers.
     RESOLVED,   // The question has been answered to the author's satisfaction.

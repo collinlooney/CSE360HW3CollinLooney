@@ -1,0 +1,180 @@
+package application;
+
+import java.sql.SQLException;
+import java.time.Duration;
+import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
+import databasePart1.DatabaseHelper;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.Cursor;
+import javafx.scene.Node;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
+import javafx.stage.Stage;
+
+
+ // Builds and displays the UI for the Discussion Board, which shows a filterable
+ // list of all public questions fetched from the database.
+
+public class DiscussionBoardView {
+
+    // fields
+
+    private final DatabaseHelper databaseHelper;
+    private TextField searchField;
+    
+    // The main container that holds the list of question summary nodes. 
+    private VBox postsContainer;
+
+    //  Constructor
+
+    public DiscussionBoardView(DatabaseHelper databaseHelper) {
+        this.databaseHelper = databaseHelper;
+    }
+
+    
+    public void show(Stage primaryStage, User user) {
+        postsContainer = new VBox(10);
+        postsContainer.setPadding(new Insets(10));
+        postsContainer.setStyle("-fx-background-color: #FAFAFA;");
+
+        // Search bar setup
+        searchField = new TextField();
+        searchField.setPromptText("Search questions by title...");
+        searchField.setPrefHeight(35);
+        searchField.textProperty().addListener((obs, oldText, newText) -> filterQuestions(newText, primaryStage, user));
+
+        HBox searchBox = new HBox(searchField);
+        HBox.setHgrow(searchField, Priority.ALWAYS);
+        searchBox.setPadding(new Insets(0, 10, 0, 10));
+
+        // Initial population of the question list
+        filterQuestions("", primaryStage, user);
+
+        // Scroll pane for the posts
+        ScrollPane scrollPane = new ScrollPane(postsContainer);
+        scrollPane.setFitToWidth(true);
+        scrollPane.setStyle("-fx-background-color: transparent;");
+
+        Button backButton = new Button("← Back to Main Menu");
+        backButton.setOnAction(e -> new UserHomePage(databaseHelper).show(primaryStage, user));
+
+        // Final layout container
+        VBox container = new VBox(10, backButton, searchBox, scrollPane);
+        container.setPadding(new Insets(10));
+        VBox.setVgrow(scrollPane, Priority.ALWAYS);
+        
+        Scene scene = new Scene(container, 800, 600);
+        primaryStage.setScene(scene);
+        primaryStage.setTitle("Discussion Board");
+    }
+
+    //  Private Helper Methods
+
+    private void filterQuestions(String searchText, Stage primaryStage, User user) {
+        postsContainer.getChildren().clear();
+        List<Question> filteredQuestions = new ArrayList<>();
+
+        try {
+            List<Question> allQuestions = databaseHelper.getAllPublicQuestions();
+            String lowerCaseSearchText = searchText.trim().toLowerCase();
+
+            if (lowerCaseSearchText.isEmpty()) {
+                filteredQuestions.addAll(allQuestions);
+            } else {
+                for (Question question : allQuestions) {
+                    if (question.getTitle().toLowerCase().contains(lowerCaseSearchText)) {
+                        filteredQuestions.add(question);
+                    }
+                }
+            }
+
+            if (filteredQuestions.isEmpty()) {
+                postsContainer.getChildren().add(new Label("No questions found."));
+            } else {
+                for (Question question : filteredQuestions) {
+                    postsContainer.getChildren().add(createQuestionSummaryNode(question, primaryStage, user));
+                }
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            postsContainer.getChildren().add(new Label("Error: Could not load questions from the database."));
+        }
+    }
+
+    // Creates a clickable UI node that displays a summary of a single question.
+     
+    private Node createQuestionSummaryNode(Question question, Stage primaryStage, User user) {
+        VBox summaryBox = new VBox(5);
+        summaryBox.setPadding(new Insets(10));
+
+        final String normalStyle = "-fx-background-color: white; -fx-border-color: #E0E0E0; -fx-border-width: 1; -fx-border-radius: 5;";
+        final String hoverStyle = "-fx-background-color: #F5F5F5; -fx-border-color: #CCCCCC; -fx-border-width: 1; -fx-border-radius: 5;";
+        summaryBox.setStyle(normalStyle);
+        summaryBox.setCursor(Cursor.HAND);
+        summaryBox.setOnMouseEntered(e -> summaryBox.setStyle(hoverStyle));
+        summaryBox.setOnMouseExited(e -> summaryBox.setStyle(normalStyle));
+
+        // Navigate to the detail view when clicked
+        summaryBox.setOnMouseClicked(e -> new QuestionDetailView(databaseHelper).show(primaryStage, user, question));
+
+        Label titleLabel = new Label(question.getTitle());
+        titleLabel.setFont(Font.font("System", FontWeight.BOLD, 16));
+
+        HBox metadataBox = new HBox(15);
+        metadataBox.setAlignment(Pos.CENTER_LEFT);
+
+        Label tagLabel = new Label(question.getTag().name());
+        tagLabel.setStyle("-fx-background-color: #E3F2FD; -fx-padding: 2 4 2 4; -fx-background-radius: 3;");
+        tagLabel.setFont(Font.font(11));
+
+        String author = question.isAnonymous() ? "Anonymous" : question.getAuthor().getName();
+        Label authorLabel = new Label("by " + author);
+        authorLabel.setTextFill(Color.GRAY);
+
+        Label timeLabel = new Label("• " + formatTimeSince(question.getCreationTimestamp()));
+        timeLabel.setTextFill(Color.GRAY);
+
+        int answerCount = databaseHelper.getAnswerCountForQuestion(question.getQuestionId().toString());
+        Label answersLabel = new Label("• " + answerCount + (answerCount == 1 ? " answer" : " answers"));
+        answersLabel.setTextFill(Color.DARKBLUE);
+
+        metadataBox.getChildren().addAll(tagLabel, authorLabel, timeLabel, answersLabel);
+        summaryBox.getChildren().addAll(titleLabel, metadataBox);
+
+        return summaryBox;
+    }
+
+    // Creates time since 
+    private String formatTimeSince(ZonedDateTime time) {
+        if (time == null) return "some time ago";
+        Duration duration = Duration.between(time, ZonedDateTime.now());
+        long seconds = duration.getSeconds();
+
+        if (seconds < 60) return "just now";
+        long minutes = seconds / 60;
+        if (minutes < 60) return minutes + (minutes == 1 ? " minute ago" : " minutes ago");
+        long hours = minutes / 60;
+        if (hours < 24) return hours + (hours == 1 ? " hour ago" : " hours ago");
+        long days = hours / 24;
+        if (days < 30) return days + (days == 1 ? " day ago" : " days ago");
+        long months = days / 30;
+        if (months < 12) return months + (months == 1 ? " month ago" : " months ago");
+
+        long years = months / 12;
+        return years + (years == 1 ? " year ago" : " years ago");
+    }
+}
