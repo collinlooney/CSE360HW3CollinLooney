@@ -102,8 +102,7 @@ public class QuestionDetailView {
             Button editButton = new Button("Edit");
             
             
-            // to be uncommented when Update fucntionality is added
-            // editButton.setOnAction(e -> new EditQuestionView(databaseHelper).show(primaryStage, user, question));
+            editButton.setOnAction(e -> new EditQuestionView(databaseHelper).show(primaryStage, user, question));
 
             Button deleteButton = new Button("Delete");
             deleteButton.setStyle("-fx-background-color: #FFCDD2;");
