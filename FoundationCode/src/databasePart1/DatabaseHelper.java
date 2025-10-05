@@ -1,14 +1,16 @@
 package databasePart1;
 import java.sql.*;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.UUID;
+import java.time.ZoneId;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import application.User;
+import application.Answer;
+import application.Comment;
+import application.Question;
+import application.QuestionStatus;
 import application.Role;
+import application.Tags;
 
 /**
  * The DatabaseHelper class is responsible for managing the connection to the database,
@@ -64,6 +66,7 @@ public class DatabaseHelper {
 	}
 
 	private void createTables() throws SQLException {
+		try (Statement statement = connection.createStatement()) {
 		String userTable = "CREATE TABLE IF NOT EXISTS cse360users ("
 				+ "id INT AUTO_INCREMENT PRIMARY KEY, "
 				+ "userName VARCHAR(255) UNIQUE, "
@@ -86,6 +89,51 @@ public class DatabaseHelper {
 		    + "id INT AUTO_INCREMENT PRIMARY KEY, "
 		    + "userName VARCHAR(255) UNIQUE)";
 	    statement.execute(otpUserTable);
+	    
+	    
+	    //newly added database tables 
+	    
+        String questionsTable = "CREATE TABLE IF NOT EXISTS questions ("
+                + "    id              VARCHAR(36) PRIMARY KEY,"
+                + "    title           VARCHAR(255),"
+                + "    body            TEXT,"
+                + "    authorUserName  VARCHAR(255),"
+                + "    status          VARCHAR(50),"
+                + "    creationTimestamp TIMESTAMP WITH TIME ZONE,"
+                + "    tag             VARCHAR(50),"
+                + "    isPrivate       BOOLEAN,"
+                + "    isAnonymous     BOOLEAN,"
+                + "    viewCount       INT,"
+                + "    FOREIGN KEY (authorUserName) REFERENCES cse360users(userName) ON DELETE CASCADE"
+                + ")";
+            statement.execute(questionsTable);
+
+            String answersTable = "CREATE TABLE IF NOT EXISTS answers ("
+                + "    id              VARCHAR(36) PRIMARY KEY,"
+                + "    body            TEXT,"
+                + "    authorUserName  VARCHAR(255),"
+                + "    questionId      VARCHAR(36),"
+                + "    creationTimestamp TIMESTAMP WITH TIME ZONE,"
+                + "    FOREIGN KEY (authorUserName) REFERENCES cse360users(userName) ON DELETE CASCADE,"
+                + "    FOREIGN KEY (questionId) REFERENCES questions(id) ON DELETE CASCADE"
+                + ")";
+            statement.execute(answersTable);
+
+            String commentsTable = "CREATE TABLE IF NOT EXISTS comments ("
+                + "    id              VARCHAR(36) PRIMARY KEY,"
+                + "    body            TEXT,"
+                + "    authorUserName  VARCHAR(255),"
+                + "    answerId        VARCHAR(36),"
+                + "    parentCommentId VARCHAR(36),"
+                + "    creationTimestamp TIMESTAMP WITH TIME ZONE,"
+                + "    FOREIGN KEY (authorUserName) REFERENCES cse360users(userName) ON DELETE CASCADE,"
+                + "    FOREIGN KEY (answerId) REFERENCES answers(id) ON DELETE CASCADE,"
+                + "    FOREIGN KEY (parentCommentId) REFERENCES comments(id) ON DELETE CASCADE"
+                + ")";
+            statement.execute(commentsTable);
+
+            System.out.println("Tables created or already exist.");
+		}
 	}
 
 
@@ -427,6 +475,326 @@ public class DatabaseHelper {
 				
 		return adminCount <= 1; // last admin 
 	}
+	
+	
+	//Newly added DB functions
+
+	
+    // Question Methods
+    
+    /**
+     * Inserts a new question into the database.
+     * @param question The Question object to add.
+     * @throws SQLException if a database access error occurs.
+     */
+    public void addQuestion(Question question) throws SQLException {
+        String sql = "INSERT INTO questions (id, title, body, authorUserName, status, creationTimestamp, tag, isPrivate, isAnonymous, viewCount) "
+                   + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            pstmt.setString(1, question.getQuestionId().toString());
+            pstmt.setString(2, question.getTitle());
+            pstmt.setString(3, question.getBody());
+            pstmt.setString(4, question.getAuthor().getUserName());
+            pstmt.setString(5, question.getStatus().name());
+            pstmt.setTimestamp(6, Timestamp.from(question.getCreationTimestamp().toInstant()));
+            pstmt.setString(7, question.getTag().name());
+            pstmt.setBoolean(8, question.isPrivate());
+            pstmt.setBoolean(9, question.isAnonymous());
+            pstmt.setInt(10, question.getViewCount());
+            pstmt.executeUpdate();
+        }
+    }
+    
+    /**
+     * Updates an existing question in the database.
+     * @param question The Question object containing the updated information.
+     * @throws SQLException if a database access error occurs.
+     */
+    public void updateQuestion(Question question) throws SQLException {
+        String sql = "UPDATE questions SET title = ?, body = ?, tag = ? WHERE id = ?";
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            pstmt.setString(1, question.getTitle());
+            pstmt.setString(2, question.getBody());
+            pstmt.setString(3, question.getTag().name());
+            pstmt.setString(4, question.getQuestionId().toString());
+            pstmt.executeUpdate();
+        }
+    }
+    
+    /**
+     * Deletes a question and all its related data (answers, comments) from the database.
+     * @param questionId The UUID of the question to delete.
+     * @throws SQLException if a database access error occurs.
+     */
+    public void deleteQuestion(String questionId) throws SQLException {
+        String sql = "DELETE FROM questions WHERE id = ?";
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            pstmt.setString(1, questionId);
+            pstmt.executeUpdate();
+        }
+    }
+    
+    /**
+     * Updates only the view count for a specific question.
+     * @param question The question whose view count needs to be updated.
+     * @throws SQLException if a database access error occurs.
+     */
+    public void updateQuestionViewCount(Question question) throws SQLException {
+        String sql = "UPDATE questions SET viewCount = ? WHERE id = ?";
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            pstmt.setInt(1, question.getViewCount());
+            pstmt.setString(2, question.getQuestionId().toString());
+            pstmt.executeUpdate();
+        }
+    }
+
+    /**
+     * Retrieves all public questions from the database, ordered by most recent.
+     * This is a shallow fetch it does not load answers or comments.
+     * @return A list of public Question objects.
+     * @throws SQLException if a database access error occurs.
+     */
+    public List<Question> getAllPublicQuestions() throws SQLException {
+        List<Question> questions = new ArrayList<>();
+        Map<String, User> userMap = getAllUsers().stream()
+                .collect(Collectors.toMap(User::getUserName, user -> user));
+
+        String sql = "SELECT * FROM questions WHERE isPrivate = FALSE ORDER BY creationTimestamp DESC";
+        try (Statement stmt = connection.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            while (rs.next()) {
+                String authorUserName = rs.getString("authorUserName");
+                User author = userMap.get(authorUserName);
+                if (author != null) {
+                    Question q = new Question(
+                        UUID.fromString(rs.getString("id")),
+                        rs.getString("title"),
+                        rs.getString("body"),
+                        author,
+                        QuestionStatus.valueOf(rs.getString("status")),
+                        rs.getTimestamp("creationTimestamp").toInstant().atZone(ZoneId.systemDefault()),
+                        Tags.valueOf(rs.getString("tag")),
+                        rs.getBoolean("isPrivate"),
+                        rs.getBoolean("isAnonymous"),
+                        rs.getInt("viewCount")
+                    );
+                    questions.add(q);
+                }
+            }
+        }
+        return questions;
+    }
+
+
+    
+    // Answer Methods
+    
+    /**
+     * Inserts a new answer into the database.
+     * @param answer The Answer object to add.
+     * @throws SQLException if a database access error occurs.
+     */
+    public void addAnswer(Answer answer) throws SQLException {
+        String sql = "INSERT INTO answers (id, body, authorUserName, questionId, creationTimestamp) VALUES (?, ?, ?, ?, ?)";
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            pstmt.setString(1, answer.getAnswerId().toString());
+            pstmt.setString(2, answer.getBody());
+            pstmt.setString(3, answer.getAuthor().getUserName());
+            pstmt.setString(4, answer.getParentQuestion().getQuestionId().toString());
+            pstmt.setTimestamp(5, Timestamp.from(answer.getCreationTimestamp().toInstant()));
+            pstmt.executeUpdate();
+        }
+    }
+    
+    /**
+     * Updates an existing answer in the database.
+     * @param answer The Answer object containing the updated body.
+     * @throws SQLException if a database access error occurs.
+     */
+    public void updateAnswer(Answer answer) throws SQLException {
+        String sql = "UPDATE answers SET body = ? WHERE id = ?";
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            pstmt.setString(1, answer.getBody());
+            pstmt.setString(2, answer.getAnswerId().toString());
+            pstmt.executeUpdate();
+        }
+    }
+
+    /**
+     * Deletes an answer and its related comments from the database.
+     * @param answerId The UUID of the answer to delete.
+     * @throws SQLException if a database access error occurs.
+     */
+    public void deleteAnswer(String answerId) throws SQLException {
+        String sql = "DELETE FROM answers WHERE id = ?";
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            pstmt.setString(1, answerId);
+            pstmt.executeUpdate();
+        }
+    }
+    
+    /**
+     * Gets the number of answers for a specific question.
+     * @param questionId The ID of the question.
+     * @return The total count of answers for that question.
+     */
+    public int getAnswerCountForQuestion(String questionId) {
+        String sql = "SELECT COUNT(*) FROM answers WHERE questionId = ?";
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            pstmt.setString(1, questionId);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+    
+    /**
+     * Fetches all answers for a given question and populates their full comment threads.
+     * @param question The question for which to fetch answers.
+     * @throws SQLException if a database access error occurs.
+     */
+    public void loadAnswersAndCommentsForQuestion(Question question) throws SQLException {
+    	Map<String, User> userMap = getAllUsers().stream()
+                .collect(Collectors.toMap(User::getUserName, user -> user));
+
+
+        String answersSql = "SELECT * FROM answers WHERE questionId = ?";
+        try (PreparedStatement pstmt = connection.prepareStatement(answersSql)) {
+            pstmt.setString(1, question.getQuestionId().toString());
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                	User author = userMap.get(rs.getString("authorUserName"));
+                    if (author != null) {
+                        Answer answer = new Answer(
+                            UUID.fromString(rs.getString("id")),
+                            question, 
+                            author, 
+                            rs.getString("body"),
+                            rs.getTimestamp("creationTimestamp").toInstant().atZone(ZoneId.systemDefault())
+                        );
+                        loadCommentTreeForAnswer(answer, userMap);
+                        question.addAnswer(answer);
+                    }
+                }
+            }
+        }
+    }
+
+    
+    // Comment Methods
+
+
+    /**
+     * Inserts a new comment into the database.
+     * @param comment The Comment object to add.
+     * @throws SQLException if a database access error occurs.
+     */
+    public void addComment(Comment comment) throws SQLException {
+        String sql = "INSERT INTO comments (id, body, authorUserName, answerId, parentCommentId, creationTimestamp) VALUES (?, ?, ?, ?, ?, ?)";
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            pstmt.setString(1, comment.getCommentId().toString());
+            pstmt.setString(2, comment.getBody());
+            pstmt.setString(3, comment.getAuthor().getUserName());
+            pstmt.setString(4, comment.getParentAnswer().getAnswerId().toString());
+            if (comment.getParentComment() != null) {
+                pstmt.setString(5, comment.getParentComment().getCommentId().toString());
+            } else {
+                pstmt.setNull(5, java.sql.Types.VARCHAR);
+            }
+            pstmt.setTimestamp(6, Timestamp.from(comment.getCreationTimestamp().toInstant()));
+            pstmt.executeUpdate();
+        }
+    }
+    
+    /**
+     * Updates an existing comment in the database.
+     * @param comment The Comment object with the updated body.
+     * @throws SQLException if a database access error occurs.
+     */
+    public void updateComment(Comment comment) throws SQLException {
+        String sql = "UPDATE comments SET body = ? WHERE id = ?";
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            pstmt.setString(1, comment.getBody());
+            pstmt.setString(2, comment.getCommentId().toString());
+            pstmt.executeUpdate();
+        }
+    }
+    
+    /**
+     * Deletes a comment from the database. This will also delete all replies.
+     * @param commentId The UUID of the comment to delete.
+     * @throws SQLException if a database access error occurs.
+     */
+    public void deleteComment(String commentId) throws SQLException {
+        String sql = "DELETE FROM comments WHERE id = ?";
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            pstmt.setString(1, commentId);
+            pstmt.executeUpdate();
+        }
+    }
+
+    /**
+     * Helper method to fetch all comments for an answer and build the nested reply tree.
+     * This uses a two-pass algorithm on a scrollable ResultSet.
+     * @param answer The answer for which to load comments.
+     * @param userMap A map of all users for efficient author lookup.
+     * @throws SQLException if a database access error occurs.
+     */
+    private void loadCommentTreeForAnswer(Answer answer, Map<String, User> userMap) throws SQLException {
+        String commentsSql = "SELECT * FROM comments WHERE answerId = ?";
+        Map<String, Comment> commentMap = new HashMap<>();
+        List<Comment> topLevelComments = new ArrayList<>();
+
+        try (PreparedStatement pstmt = connection.prepareStatement(commentsSql,
+                                                               ResultSet.TYPE_SCROLL_INSENSITIVE,
+                                                               ResultSet.CONCUR_READ_ONLY)) {
+            
+            pstmt.setString(1, answer.getAnswerId().toString());
+            try (ResultSet rs = pstmt.executeQuery()) {
+                // First pass: create all comment objects and put them in a map for easy lookup.
+                while (rs.next()) {
+                    User author = userMap.get(rs.getString("authorUserName"));
+                    Comment comment = new Comment(
+                        UUID.fromString(rs.getString("id")),
+                        answer,
+                        null, // Parent comment is linked in the second pass.
+                        author,
+                        rs.getString("body"),
+                        rs.getTimestamp("creationTimestamp").toInstant().atZone(ZoneId.systemDefault())
+                    );
+                    commentMap.put(rs.getString("id"), comment);
+                }
+                
+                // Second pass: link replies to their parents.
+                rs.beforeFirst(); 
+                while(rs.next()) {
+                    String commentId = rs.getString("id");
+                    String parentCommentId = rs.getString("parentCommentId");
+                    Comment child = commentMap.get(commentId);
+
+                    if (parentCommentId != null) {
+                        Comment parent = commentMap.get(parentCommentId);
+                        if (parent != null) {
+                            parent.addReply(child);
+                            child.setParentComment(parent);
+                        }
+                    } else {
+                        topLevelComments.add(child);
+                    }
+                }
+            }
+        }
+        
+        // Add the fully constructed comment threads to the answer object.
+        for (Comment comment : topLevelComments) {
+            answer.addComment(comment);
+        }
+    }
 	
 
 }
