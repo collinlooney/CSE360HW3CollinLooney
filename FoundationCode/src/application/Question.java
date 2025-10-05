@@ -5,15 +5,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-/**
- * Represents a single question asked by a user in the application.
- * This class holds all data related to a question, including its content,
- * author, status, and associated answers.
- */
+//  Represents a single question asked by a user in the application.
+
 public class Question {
-
-    // --- Fields ---
-
     private final UUID questionId;
     private final User author;
     private final ZonedDateTime creationTimestamp;
@@ -23,7 +17,7 @@ public class Question {
     private QuestionStatus status;
     private ZonedDateTime lastModifiedTimestamp;
     private Tags tags;
-    private Answer acceptedAnswer;      // Can be null
+    private Answer acceptedAnswer;     
     
     private List<Answer> potentialAnswers;
     
@@ -31,19 +25,7 @@ public class Question {
     private boolean isAnonymous;
     private int viewCount;
 
-    // --- Constructors ---
-
-    /**
-     * Constructs a new Question with all options. Used when a user creates a new question.
-     * Automatically generates a new UUID and timestamps.
-     *
-     * @param author The user asking the question.
-     * @param title The title of the question.
-     * @param body The detailed content of the question.
-     * @param tag The single relevant tag for the question.
-     * @param isPrivate True if the question should be visible only to specific roles.
-     * @param isAnonymous True if the author's name should be hidden.
-     */
+    //Constructs a new Question with all options. Used when a user creates a new question.
     public Question(User author, String title, String body, Tags tag, boolean isPrivate, boolean isAnonymous) {
         this.questionId = UUID.randomUUID();
         this.author = author;
@@ -63,10 +45,7 @@ public class Question {
     
 
     
-    /**
-     * Constructs a Question object from existing data. Used when re-creating an
-     * object from the database.
-     */
+    // Constructs a Question object from existing data. Used when re-creating an object from the database.
     public Question(UUID id, String title, String body, User author, QuestionStatus status,
                     ZonedDateTime creationTimestamp, Tags tag, boolean isPrivate,
                     boolean isAnonymous, int viewCount) {
@@ -86,13 +65,7 @@ public class Question {
         this.potentialAnswers = new ArrayList<>();
     }
 
-    // --- Business Methods ---
 
-    /**
-     * Accepts an answer, marking it as the solution and resolving the question.
-     * @param answer The answer that resolves the question.
-     * @throws IllegalArgumentException if the answer does not belong to this question.
-     */
     public void acceptAnswer(Answer answer) {
         if (potentialAnswers.contains(answer)) {
             this.acceptedAnswer = answer;
@@ -103,23 +76,15 @@ public class Question {
         }
     }
 
-    /**
-     * Adds an answer to this question's list of potential answers.
-     * @param answer The Answer object to add.
-     */
     public void addAnswer(Answer answer) {
         this.potentialAnswers.add(answer);
     }
     
-    
-    /**
-     * Increments the view count for this question by one.
-     */
+
     public void incrementViewCount() {
         this.viewCount++;
     }
     
-    // --- Getters and Setters ---
 
     public UUID getQuestionId() {
         return questionId;

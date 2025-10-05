@@ -225,8 +225,8 @@ public class QuestionDetailView {
             HBox.setHgrow(spacer, Priority.ALWAYS);
 
             Button editButton = new Button("Edit");
-            // Uncomment after Update answer
-            // editButton.setOnAction(e -> new EditAnswerView(databaseHelper).show(primaryStage, user, answer));
+            
+            editButton.setOnAction(e -> new EditAnswerView(databaseHelper).show(primaryStage, user, answer));
 
             Button deleteButton = new Button("Delete");
             deleteButton.setStyle("-fx-background-color: #FFCDD2;");
