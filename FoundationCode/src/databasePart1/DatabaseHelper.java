@@ -482,11 +482,8 @@ public class DatabaseHelper {
 	
     // Question Methods
     
-    /**
-     * Inserts a new question into the database.
-     * @param question The Question object to add.
-     * @throws SQLException if a database access error occurs.
-     */
+
+     // inserts a new question into the database.
     public void addQuestion(Question question) throws SQLException {
         String sql = "INSERT INTO questions (id, title, body, authorUserName, status, creationTimestamp, tag, isPrivate, isAnonymous, viewCount) "
                    + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
@@ -505,11 +502,8 @@ public class DatabaseHelper {
         }
     }
     
-    /**
-     * Updates an existing question in the database.
-     * @param question The Question object containing the updated information.
-     * @throws SQLException if a database access error occurs.
-     */
+
+    // Updates an existing question in the database.
     public void updateQuestion(Question question) throws SQLException {
         String sql = "UPDATE questions SET title = ?, body = ?, tag = ? WHERE id = ?";
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
@@ -521,11 +515,9 @@ public class DatabaseHelper {
         }
     }
     
-    /**
-     * Deletes a question and all its related data (answers, comments) from the database.
-     * @param questionId The UUID of the question to delete.
-     * @throws SQLException if a database access error occurs.
-     */
+
+     // deletes a question and all its related data (answers, comments) from the database.
+
     public void deleteQuestion(String questionId) throws SQLException {
         String sql = "DELETE FROM questions WHERE id = ?";
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
@@ -534,11 +526,8 @@ public class DatabaseHelper {
         }
     }
     
-    /**
-     * Updates only the view count for a specific question.
-     * @param question The question whose view count needs to be updated.
-     * @throws SQLException if a database access error occurs.
-     */
+
+     // Updates only the view count for a specific question.
     public void updateQuestionViewCount(Question question) throws SQLException {
         String sql = "UPDATE questions SET viewCount = ? WHERE id = ?";
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
@@ -548,12 +537,9 @@ public class DatabaseHelper {
         }
     }
 
-    /**
-     * Retrieves all public questions from the database, ordered by most recent.
-     * This is a shallow fetch it does not load answers or comments.
-     * @return A list of public Question objects.
-     * @throws SQLException if a database access error occurs.
-     */
+
+     // Retrieves all public questions from the database, ordered by most recent.
+
     public List<Question> getAllPublicQuestions() throws SQLException {
         List<Question> questions = new ArrayList<>();
         Map<String, User> userMap = getAllUsers().stream()
@@ -589,11 +575,9 @@ public class DatabaseHelper {
     
     // Answer Methods
     
-    /**
-     * Inserts a new answer into the database.
-     * @param answer The Answer object to add.
-     * @throws SQLException if a database access error occurs.
-     */
+
+     // Inserts a new answer into the database.
+
     public void addAnswer(Answer answer) throws SQLException {
         String sql = "INSERT INTO answers (id, body, authorUserName, questionId, creationTimestamp) VALUES (?, ?, ?, ?, ?)";
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
@@ -606,11 +590,9 @@ public class DatabaseHelper {
         }
     }
     
-    /**
-     * Updates an existing answer in the database.
-     * @param answer The Answer object containing the updated body.
-     * @throws SQLException if a database access error occurs.
-     */
+
+     // Updates an existing answer in the database.
+
     public void updateAnswer(Answer answer) throws SQLException {
         String sql = "UPDATE answers SET body = ? WHERE id = ?";
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
@@ -620,11 +602,9 @@ public class DatabaseHelper {
         }
     }
 
-    /**
-     * Deletes an answer and its related comments from the database.
-     * @param answerId The UUID of the answer to delete.
-     * @throws SQLException if a database access error occurs.
-     */
+
+     // Deletes an answer and its related comments from the database.
+
     public void deleteAnswer(String answerId) throws SQLException {
         String sql = "DELETE FROM answers WHERE id = ?";
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
@@ -632,12 +612,10 @@ public class DatabaseHelper {
             pstmt.executeUpdate();
         }
     }
+
     
-    /**
-     * Gets the number of answers for a specific question.
-     * @param questionId The ID of the question.
-     * @return The total count of answers for that question.
-     */
+     // Gets the number of answers for a specific question.
+
     public int getAnswerCountForQuestion(String questionId) {
         String sql = "SELECT COUNT(*) FROM answers WHERE questionId = ?";
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
@@ -653,11 +631,8 @@ public class DatabaseHelper {
         return 0;
     }
     
-    /**
-     * Fetches all answers for a given question and populates their full comment threads.
-     * @param question The question for which to fetch answers.
-     * @throws SQLException if a database access error occurs.
-     */
+
+     // Fetches all answers for a given question and populates their full comment threads.
     public void loadAnswersAndCommentsForQuestion(Question question) throws SQLException {
     	Map<String, User> userMap = getAllUsers().stream()
                 .collect(Collectors.toMap(User::getUserName, user -> user));
@@ -688,12 +663,7 @@ public class DatabaseHelper {
     
     // Comment Methods
 
-
-    /**
-     * Inserts a new comment into the database.
-     * @param comment The Comment object to add.
-     * @throws SQLException if a database access error occurs.
-     */
+     // Inserts a new comment into the database.
     public void addComment(Comment comment) throws SQLException {
         String sql = "INSERT INTO comments (id, body, authorUserName, answerId, parentCommentId, creationTimestamp) VALUES (?, ?, ?, ?, ?, ?)";
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
@@ -711,11 +681,9 @@ public class DatabaseHelper {
         }
     }
     
-    /**
-     * Updates an existing comment in the database.
-     * @param comment The Comment object with the updated body.
-     * @throws SQLException if a database access error occurs.
-     */
+
+     // Updates an existing comment in the database.
+
     public void updateComment(Comment comment) throws SQLException {
         String sql = "UPDATE comments SET body = ? WHERE id = ?";
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
@@ -725,11 +693,8 @@ public class DatabaseHelper {
         }
     }
     
-    /**
-     * Deletes a comment from the database. This will also delete all replies.
-     * @param commentId The UUID of the comment to delete.
-     * @throws SQLException if a database access error occurs.
-     */
+
+     // Deletes a comment from the database. This will also delete all replies.
     public void deleteComment(String commentId) throws SQLException {
         String sql = "DELETE FROM comments WHERE id = ?";
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
@@ -738,13 +703,8 @@ public class DatabaseHelper {
         }
     }
 
-    /**
-     * Helper method to fetch all comments for an answer and build the nested reply tree.
-     * This uses a two-pass algorithm on a scrollable ResultSet.
-     * @param answer The answer for which to load comments.
-     * @param userMap A map of all users for efficient author lookup.
-     * @throws SQLException if a database access error occurs.
-     */
+
+     // Helper method to fetch all comments for an answer and build the nested reply tree.
     private void loadCommentTreeForAnswer(Answer answer, Map<String, User> userMap) throws SQLException {
         String commentsSql = "SELECT * FROM comments WHERE answerId = ?";
         Map<String, Comment> commentMap = new HashMap<>();
@@ -756,7 +716,7 @@ public class DatabaseHelper {
             
             pstmt.setString(1, answer.getAnswerId().toString());
             try (ResultSet rs = pstmt.executeQuery()) {
-                // First pass: create all comment objects and put them in a map for easy lookup.
+                // first pass: create all comment objects and put them in a map for easy lookup.
                 while (rs.next()) {
                     User author = userMap.get(rs.getString("authorUserName"));
                     Comment comment = new Comment(
@@ -770,7 +730,7 @@ public class DatabaseHelper {
                     commentMap.put(rs.getString("id"), comment);
                 }
                 
-                // Second pass: link replies to their parents.
+                // second pass: link replies to their parents.
                 rs.beforeFirst(); 
                 while(rs.next()) {
                     String commentId = rs.getString("id");
