@@ -132,7 +132,7 @@ public class QuestionDetailView {
         Label authorLabel = new Label(question.isAnonymous() ? "Anonymous" : question.getAuthor().getName());
         authorLabel.setFont(Font.font("System", FontWeight.BOLD, 14));
         Label timeSinceLabel = new Label(formatTimeSince(question.getCreationTimestamp()));
-        Label tagLabel = new Label("in " + question.getTag().name());
+        Label tagLabel = new Label("in " + question.getTag().toString());
         tagLabel.setStyle("-fx-background-color: #E3F2FD; -fx-padding: 3 5 3 5; -fx-background-radius: 5;");
         HBox timeTagBox = new HBox(10, timeSinceLabel, tagLabel);
         timeTagBox.setAlignment(Pos.CENTER_LEFT);
