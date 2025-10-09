@@ -1,5 +1,7 @@
 package application;
 
+import application.Authorization;
+
 import java.sql.SQLException;
 import java.time.Duration;
 import java.time.ZonedDateTime;
@@ -36,10 +38,14 @@ public class DiscussionBoardView {
     
     // The main container that holds the list of question summary nodes. 
     private VBox postsContainer;
+    
+    // flag for if user is admin
+    private final boolean adminFlag; 
 
     // Constructor
-    public DiscussionBoardView(DatabaseHelper databaseHelper) {
+    public DiscussionBoardView(DatabaseHelper databaseHelper, boolean adminFlag) {
         this.databaseHelper = databaseHelper;
+        this.adminFlag = adminFlag;
     }
 
     public void show(Stage primaryStage, User user) {
@@ -66,7 +72,13 @@ public class DiscussionBoardView {
         scrollPane.setStyle("-fx-background-color: transparent;");
 
         Button backButton = new Button("← Back to Main Menu");
-        backButton.setOnAction(e -> new UserHomePage(databaseHelper).show(primaryStage, user));
+        backButton.setOnAction(e -> {
+        	if (adminFlag) {
+        		new AdminHomePage(databaseHelper).show(primaryStage, user);
+        	} else {
+        		new UserHomePage(databaseHelper).show(primaryStage, user);
+        	}
+        });
 
         // Final layout container
         VBox container = new VBox(10, backButton, searchBox, scrollPane);
@@ -124,7 +136,7 @@ public class DiscussionBoardView {
         summaryBox.setOnMouseExited(e -> summaryBox.setStyle(normalStyle));
 
         // Navigate to the detail view when clicked
-        summaryBox.setOnMouseClicked(e -> new QuestionDetailView(databaseHelper).show(primaryStage, user, question));
+        summaryBox.setOnMouseClicked(e -> new QuestionDetailView(databaseHelper, adminFlag).show(primaryStage, user, question));
 
         Label titleLabel = new Label(question.getTitle());
         titleLabel.setFont(Font.font("System", FontWeight.BOLD, 16));

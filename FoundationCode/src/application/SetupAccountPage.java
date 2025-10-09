@@ -64,11 +64,11 @@ public class SetupAccountPage {
         
         TextField userNameField = new TextField();
         Label userNameCheck = new Label();
-        HBox userNameBox = buildFieldRow(userNameField, "Enter Admin userName", userNameCheck);
+        HBox userNameBox = buildFieldRow(userNameField, "Enter desired username", userNameCheck);
 
         PasswordField passwordField = new PasswordField();
         Label passwordCheck = new Label();
-        HBox passwordBox = buildFieldRow(passwordField, "Enter Password", passwordCheck);
+        HBox passwordBox = buildFieldRow(passwordField, "Enter password", passwordCheck);
 
         TextField nameField = new TextField();
         Label nameCheck = new Label();
