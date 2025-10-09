@@ -25,26 +25,23 @@ import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 
 
- // Builds and displays the UI for the Discussion Board, which shows a filterable
- // list of all public questions fetched from the database.
+// Builds and displays the UI for the Discussion Board, which shows a filterable
+// list of all public questions fetched from the database.
 
 public class DiscussionBoardView {
 
     // fields
-
     private final DatabaseHelper databaseHelper;
     private TextField searchField;
     
     // The main container that holds the list of question summary nodes. 
     private VBox postsContainer;
 
-    //  Constructor
-
+    // Constructor
     public DiscussionBoardView(DatabaseHelper databaseHelper) {
         this.databaseHelper = databaseHelper;
     }
 
-    
     public void show(Stage primaryStage, User user) {
         postsContainer = new VBox(10);
         postsContainer.setPadding(new Insets(10));
@@ -81,8 +78,7 @@ public class DiscussionBoardView {
         primaryStage.setTitle("Discussion Board");
     }
 
-    //  Private Helper Methods
-
+    // Private Helper Methods
     private void filterQuestions(String searchText, Stage primaryStage, User user) {
         postsContainer.getChildren().clear();
         List<Question> filteredQuestions = new ArrayList<>();
@@ -116,7 +112,6 @@ public class DiscussionBoardView {
     }
 
     // Creates a clickable UI node that displays a summary of a single question.
-     
     private Node createQuestionSummaryNode(Question question, Stage primaryStage, User user) {
         VBox summaryBox = new VBox(5);
         summaryBox.setPadding(new Insets(10));
@@ -138,8 +133,35 @@ public class DiscussionBoardView {
         metadataBox.setAlignment(Pos.CENTER_LEFT);
 
         Label tagLabel = new Label(question.getTag().name());
-        tagLabel.setStyle("-fx-background-color: #E3F2FD; -fx-padding: 2 4 2 4; -fx-background-radius: 3;");
         tagLabel.setFont(Font.font(11));
+        tagLabel.setTextFill(Color.WHITE);
+        tagLabel.setPadding(new Insets(2, 6, 2, 6));
+        tagLabel.setStyle("-fx-background-radius: 3;");
+
+        // Apply color based on tag 
+        switch (question.getTag()) {
+            case GENERAL:
+                tagLabel.setStyle(tagLabel.getStyle() + "-fx-background-color: #3B82F6;");
+                break;
+            case HOMEWORK:
+                tagLabel.setStyle(tagLabel.getStyle() + "-fx-background-color: #10B981;");
+                break;
+            case TEAM_PROJECT:
+                tagLabel.setStyle(tagLabel.getStyle() + "-fx-background-color: #F59E0B;");
+                break;
+            case QUIZZES:
+                tagLabel.setStyle(tagLabel.getStyle() + "-fx-background-color: #8B5CF6;");
+                break;
+            case EXAMS:
+                tagLabel.setStyle(tagLabel.getStyle() + "-fx-background-color: #EF4444;");
+                break;
+            case TEAM_FORMATION:
+                tagLabel.setStyle(tagLabel.getStyle() + "-fx-background-color: #0EA5E9;");
+                break;
+            default:
+                tagLabel.setStyle(tagLabel.getStyle() + "-fx-background-color: #6B7280;");
+                break;
+        }
 
         String author = question.isAnonymous() ? "Anonymous" : question.getAuthor().getName();
         Label authorLabel = new Label("by " + author);
