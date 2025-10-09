@@ -49,6 +49,8 @@ public class EmailValidator {
 	private static boolean finalState = false;				// Is this state a final state?
 	private static boolean badHyphen = false;				// Hyphen in wrong spot?
 	
+	private static final boolean debugMode = false; 
+	
 	
 	
 	private static boolean isAlpha(char c) { // helper to check if input char is Alphabetical 
@@ -69,6 +71,8 @@ public class EmailValidator {
 	
 	private static void displayDebuggingInfo() { //same as LR Carter's code except line 78 (emailSize) 
 		// Display the current state of the FSM as part of an execution trace
+		if(!debugMode) return;
+		
 		if (currentCharNdx >= inputLine.length())
 			// display the line with the current state numbers aligned
 			System.out.println(((state > 99) ? " " : (state > 9) ? "  " : "   ") + state + 
@@ -134,8 +138,9 @@ public class EmailValidator {
 		// System.out.println(input); // debug line
 		
 		// Count and index @
-		
-		System.out.println("\nCurrent Final Input  Next  Size\nState   State Char  State  Size"); // debug line
+		if (debugMode) {
+			System.out.println("\nCurrent Final Input  Next  Size\nState   State Char  State  Size"); // debug line
+		}
 		
 		for (int i = 0; i < input.length(); i++) {
 		    char c = input.charAt(i);
@@ -271,8 +276,9 @@ public class EmailValidator {
 				
 			// After loop
 			displayDebuggingInfo();
-			System.out.println("The loop has ended.");
-
+			if(debugMode) {
+				System.out.println("The loop has ended.");
+			}
 			emailValidatorIndexofError = currentCharNdx; 
 			emailValidatorErrorMessage = "\nEMAIL ERROR: ";
 

@@ -24,6 +24,7 @@ public class AskQuestionView {
 
     // Fields
     private final DatabaseHelper databaseHelper;
+    private final boolean adminFlag; 
     private TextField titleField;
     private TextArea bodyTextArea;
     private CheckBox anonymousCheckBox;
@@ -34,8 +35,9 @@ public class AskQuestionView {
     private ToggleGroup tagGroup; // colored tag selection
 
     // Constructor
-    public AskQuestionView(DatabaseHelper databaseHelper) {
+    public AskQuestionView(DatabaseHelper databaseHelper, boolean adminFlag) {
         this.databaseHelper = databaseHelper;
+        this.adminFlag = adminFlag; 
     }
 
     // Main UI Layout
@@ -196,7 +198,7 @@ public class AskQuestionView {
 
         try {
             databaseHelper.addQuestion(newQuestion);
-            new QuestionDetailView(databaseHelper).show(primaryStage, currentUser, newQuestion);
+            new QuestionDetailView(databaseHelper, adminFlag).show(primaryStage, currentUser, newQuestion);
         } catch (SQLException e) {
             e.printStackTrace();
             showError("Database Error: Could not save your question. Please try again.");
@@ -264,7 +266,7 @@ public class AskQuestionView {
                 + "-fx-border-width: 1; -fx-border-radius: 3; -fx-background-radius: 3;"));
         
         // Navigates to the question detail view when clicked
-        card.setOnMouseClicked(event -> new QuestionDetailView(databaseHelper).show(primaryStage, user, question));
+        card.setOnMouseClicked(event -> new QuestionDetailView(databaseHelper,adminFlag).show(primaryStage, user, question));
         
         // Text content
         VBox textBox = new VBox(3);

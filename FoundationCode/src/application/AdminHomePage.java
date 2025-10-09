@@ -1,13 +1,20 @@
 package application;
 
 import javafx.geometry.Pos;
+
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.VBox;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
+
 import javafx.stage.Stage;
+
 import databasePart1.DatabaseHelper; // added for use with database C.L.
 
 
@@ -45,77 +52,38 @@ public class AdminHomePage {
     }
 	
 	public void show(Stage primaryStage, User user) {
+	    // Root layout
+	    BorderPane layout = new BorderPane();
 
-    	// BorderPane is ideal for a top menu bar and center content
-        BorderPane layout = new BorderPane();
+	    // --- Top menubar: Session + User Management (admin)
+	    layout.setTop(TopMenuLayout.createAdminMenuBar(databaseHelper, primaryStage, user));
 
-        // --- Create the MenuBar ---
-        MenuBar menuBar = new MenuBar();
+	    // --- Center content (match UserHomePage wiring)
+	    VBox centerContent = new VBox(20);
+	    centerContent.setAlignment(Pos.CENTER);
 
-        // --- Create the "Session" Menu ---
-        Menu sessionMenu = new Menu("Session");
-        
-        MenuItem returnItem = new MenuItem("Return to Welcome");
-        returnItem.setOnAction(e -> {
-            if (user != null) {
-                new WelcomeLoginPage(databaseHelper).show(primaryStage, user);
-            } else {
-                new SetupLoginSelectionPage(databaseHelper).show(primaryStage);
-            }
-        });
-        
-        MenuItem logoutItem = new MenuItem("Logout");
-        logoutItem.setOnAction(e -> {
-            new SetupLoginSelectionPage(databaseHelper).show(primaryStage);
-            primaryStage.setTitle("Login / Create Account");
-        });
-        
-        sessionMenu.getItems().addAll(returnItem, logoutItem);
+	    Label adminLabel = new Label("Welcome, " + (user != null ? user.getName() : "Admin") + "!");
+	    adminLabel.setStyle("-fx-font-size: 20px; -fx-font-weight: bold;");
+	    
+	    Label lowerLabel = new Label("You are currently logged in as an Admin.");
+	    lowerLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #555555;");
 
-        // --- Create the "User Management" Menu ---
-        Menu userManagementMenu = new Menu("User Management");
+	    Button askButton = new Button("Ask a New Question");
+	    askButton.setPrefSize(300, 60);
+	    askButton.setFont(Font.font(18));
+	    askButton.setOnAction(e -> new AskQuestionView(databaseHelper, true).show(primaryStage, user));
 
-        MenuItem inviteUserItem = new MenuItem("Create Invitation");
-        inviteUserItem.setOnAction(e -> {
-            new InvitationPage().show(databaseHelper,primaryStage);
-        });
+	    Button discussButton = new Button("Go to Discussion Board");
+	    discussButton.setPrefSize(300, 60);
+	    discussButton.setFont(Font.font(18));
+	    discussButton.setOnAction(e -> new DiscussionBoardView(databaseHelper, true).show(primaryStage, user));
 
-        MenuItem createOtpItem = new MenuItem("Create One-Time Password");
-        createOtpItem.setOnAction(e -> {
-            new AdminOneTimePasswordCreatePage(databaseHelper).show(primaryStage, "", user);
-        });
+	    centerContent.getChildren().addAll(adminLabel, lowerLabel, askButton, discussButton);
+	    layout.setCenter(centerContent);
 
+	    Scene adminScene = new Scene(layout, 800, 400);
+	    primaryStage.setScene(adminScene);
+	    primaryStage.setTitle("Admin Dashboard");
+	}
 
-        MenuItem listUsersItem = new MenuItem("List All Users"); // removed update and delete buttons, since this is done through the list
-        listUsersItem.setOnAction(e -> {
-            new AdminListAllUsers(databaseHelper).show(primaryStage);
-        });
-
-
-        // Add all admin actions as MenuItems to this menu
-        userManagementMenu.getItems().addAll(
-            inviteUserItem,
-            createOtpItem,
-            listUsersItem
-        );
-
-        // Add both Menus to the MenuBar
-        menuBar.getMenus().addAll(sessionMenu, userManagementMenu);
-
-        // --- Center Content ---
-        Label adminLabel = new Label("Welcome, Admin!");
-        adminLabel.setStyle("-fx-font-size: 20px; -fx-font-weight: bold;");
-        // Center the label within the BorderPane's center region
-        BorderPane.setAlignment(adminLabel, Pos.CENTER);
-
-
-        // --- Assemble the Layout ---
-        layout.setTop(menuBar);       // Place menu bar at the top
-        layout.setCenter(adminLabel); // Place welcome label in the center
-
-        Scene adminScene = new Scene(layout, 800, 400);
-
-        primaryStage.setScene(adminScene);
-        primaryStage.setTitle("Admin Dashboard");
-    }
 }

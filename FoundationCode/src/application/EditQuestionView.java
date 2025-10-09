@@ -26,6 +26,7 @@ public class EditQuestionView {
   
 
     private final DatabaseHelper databaseHelper;
+    private final boolean adminFlag; 
 
     private TextField titleField;
     private TextArea bodyTextArea;
@@ -33,8 +34,9 @@ public class EditQuestionView {
     private Label feedbackLabel;
 
 
-    public EditQuestionView(DatabaseHelper databaseHelper) {
+    public EditQuestionView(DatabaseHelper databaseHelper, boolean adminFlag) {
         this.databaseHelper = databaseHelper;
+        this.adminFlag = adminFlag; 
     }
 
  
@@ -77,7 +79,7 @@ public class EditQuestionView {
 
         // back button returns to the question detail view without saving changes.
         Button backButton = new Button("← Back to Question");
-        backButton.setOnAction(e -> new QuestionDetailView(databaseHelper).show(primaryStage, user, questionToEdit));
+        backButton.setOnAction(e -> new QuestionDetailView(databaseHelper, adminFlag).show(primaryStage, user, questionToEdit));
 
         VBox container = new VBox(10, backButton, formVBox);
         container.setPadding(new Insets(10));
@@ -109,7 +111,7 @@ public class EditQuestionView {
             // save the updated object to the database.
             databaseHelper.updateQuestion(questionToEdit);
             // navigate back to the detail view to see the changes.
-            new QuestionDetailView(databaseHelper).show(primaryStage, user, questionToEdit);
+            new QuestionDetailView(databaseHelper, adminFlag).show(primaryStage, user, questionToEdit);
         } catch (SQLException e) {
             e.printStackTrace();
             showError("Database Error: Could not save your changes.");

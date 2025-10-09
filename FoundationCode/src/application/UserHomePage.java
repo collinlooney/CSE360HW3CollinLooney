@@ -29,15 +29,8 @@ public class UserHomePage {
         BorderPane rootLayout = new BorderPane();
 
         // --- 1. Create the Top Bar with a Logout Button ---
-        HBox topBar = new HBox();
-        topBar.setPadding(new Insets(10, 15, 10, 15)); // Add some spacing around the bar
-        topBar.setAlignment(Pos.CENTER_RIGHT); // This pushes content to the far right
-
-        Button logoutButton = new Button("Logout");
-        logoutButton.setOnAction(e -> new UserLoginPage(databaseHelper).show(primaryStage));
-
-        topBar.getChildren().add(logoutButton);
-        rootLayout.setTop(topBar);
+       
+        rootLayout.setTop(TopMenuLayout.createSessionMenuBar(databaseHelper, primaryStage, user));
         
     	VBox centerContent = new VBox(20);
     	centerContent.setAlignment(Pos.CENTER);
@@ -51,13 +44,13 @@ public class UserHomePage {
         Button askButton = new Button("Ask a New Question");
         askButton.setPrefSize(300, 60);
         askButton.setFont(Font.font(18));
-        askButton.setOnAction(e -> new AskQuestionView(databaseHelper).show(primaryStage, user));
+        askButton.setOnAction(e -> new AskQuestionView(databaseHelper, false).show(primaryStage, user));
         
         
         Button discussButton = new Button("Go to Discussion Board");
         discussButton.setPrefSize(300, 60);
         discussButton.setFont(Font.font(18));
-        discussButton.setOnAction(e -> new DiscussionBoardView(databaseHelper).show(primaryStage, user));
+        discussButton.setOnAction(e -> new DiscussionBoardView(databaseHelper, false).show(primaryStage, user));
         
         
 	    centerContent.getChildren().addAll(userLabel, askButton, discussButton);

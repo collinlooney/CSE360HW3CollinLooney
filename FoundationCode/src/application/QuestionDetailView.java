@@ -1,5 +1,8 @@
 package application;
 
+import application.Authorization;
+import application.Role; 
+
 import java.sql.SQLException;
 import java.time.Duration;
 import java.time.ZonedDateTime;
@@ -36,10 +39,12 @@ import javafx.stage.Stage;
 public class QuestionDetailView {
 
     private final DatabaseHelper databaseHelper;
+    private final boolean adminFlag; 
 
     
-    public QuestionDetailView(DatabaseHelper databaseHelper) {
+    public QuestionDetailView(DatabaseHelper databaseHelper, boolean adminFlag) {
         this.databaseHelper = databaseHelper;
+        this.adminFlag = adminFlag;
     }
 
     public void show(Stage primaryStage, User user, Question question) {
@@ -71,7 +76,7 @@ public class QuestionDetailView {
         scrollPane.setStyle("-fx-background-color: transparent;");
 
         Button backButton = new Button("← Back to Discussion Board");
-        backButton.setOnAction(e -> new DiscussionBoardView(databaseHelper).show(primaryStage, user));
+        backButton.setOnAction(e -> new DiscussionBoardView(databaseHelper, adminFlag).show(primaryStage, user));
 
         VBox container = new VBox(10, backButton, scrollPane);
         container.setPadding(new Insets(10));
@@ -97,21 +102,31 @@ public class QuestionDetailView {
         titleLabel.setMaxWidth(Double.MAX_VALUE);
         titleBar.getChildren().add(titleLabel);
 
-        boolean isOwner = user.getUserName().equals(question.getAuthor().getUserName());
-        if (isOwner) {
-            Button editButton = new Button("Edit");
-            
-            
-            editButton.setOnAction(e -> new EditQuestionView(databaseHelper).show(primaryStage, user, question));
+        //admin/owner controls 
+        
+        boolean showEdit   = Authorization.canEditQuestion(user, databaseHelper, question);
+        boolean showDelete = Authorization.canDeleteQuestion(user, databaseHelper, question, adminFlag);
 
+        HBox ownerControls = new HBox(10);
+        ownerControls.setAlignment(Pos.CENTER_RIGHT);
+
+        if (showEdit) {
+            Button editButton = new Button("Edit");
+            editButton.setOnAction(e -> new EditQuestionView(databaseHelper, adminFlag).show(primaryStage, user, question));
+            ownerControls.getChildren().add(editButton);
+        }
+
+        if (showDelete) {
             Button deleteButton = new Button("Delete");
             deleteButton.setStyle("-fx-background-color: #FFCDD2;");
             deleteButton.setOnAction(e -> handleDeleteQuestionAction(primaryStage, user, question));
+            ownerControls.getChildren().add(deleteButton);
+        }
 
-            HBox ownerControls = new HBox(10, editButton, deleteButton);
-            ownerControls.setAlignment(Pos.CENTER_RIGHT);
+        if (!ownerControls.getChildren().isEmpty()) {
             titleBar.getChildren().add(ownerControls);
         }
+
 
         // Metadata UI
         Label authorLabel = new Label(question.isAnonymous() ? "Anonymous" : question.getAuthor().getName());
@@ -219,20 +234,25 @@ public class QuestionDetailView {
         HBox footer = new HBox(10, commentOnAnswerButton);
         footer.setAlignment(Pos.CENTER_LEFT);
 
-        boolean isOwner = user.getUserName().equals(answer.getAuthor().getUserName());
-        if (isOwner) {
-            Pane spacer = new Pane();
-            HBox.setHgrow(spacer, Priority.ALWAYS);
+        //admin/owner controls 
+        
+        boolean showEdit = Authorization.canEditAnswer(user, databaseHelper, answer);
+        boolean showDelete = Authorization.canDeleteAnswer(user, databaseHelper, answer, adminFlag);
 
+        Pane spacer = new Pane();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+        footer.getChildren().add(spacer);
+
+        if (showEdit) {
             Button editButton = new Button("Edit");
-            
-            editButton.setOnAction(e -> new EditAnswerView(databaseHelper).show(primaryStage, user, answer));
-
+            editButton.setOnAction(e -> new EditAnswerView(databaseHelper, adminFlag).show(primaryStage, user, answer));
+            footer.getChildren().add(editButton);
+        }
+        if (showDelete) {
             Button deleteButton = new Button("Delete");
             deleteButton.setStyle("-fx-background-color: #FFCDD2;");
             deleteButton.setOnAction(e -> handleDeleteAnswerAction(primaryStage, user, question, answer));
-            
-            footer.getChildren().addAll(spacer, editButton, deleteButton);
+            footer.getChildren().add(deleteButton);
         }
 
         answerBox.getChildren().addAll(answerBody, infoLabel, footer, commentInputContainer, commentsContainer, new Separator());
@@ -252,27 +272,34 @@ public class QuestionDetailView {
         infoLabel.setTextFill(Color.DARKSLATEGRAY);
 
         Button replyButton = new Button("Reply");
-        replyButton.setFont(Font.font(10));
+        replyButton.setFont(Font.font(11));
 
         HBox footer = new HBox(10, replyButton);
         footer.setAlignment(Pos.CENTER_LEFT);
+        
+        //owner/admin controls
+        
+        boolean showEdit = Authorization.canEditComment(user, databaseHelper, comment);
+        boolean showDelete = Authorization.canDeleteComment(user, databaseHelper, comment, adminFlag);
 
-        boolean isOwner = user.getUserName().equals(comment.getAuthor().getUserName());
-        if (isOwner) {
-            Pane spacer = new Pane();
-            HBox.setHgrow(spacer, Priority.ALWAYS);
+        Pane spacer = new Pane();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+        footer.getChildren().add(spacer);
 
+        if (showEdit) {
             Button editButton = new Button("Edit");
-            editButton.setFont(Font.font(10));
-            editButton.setOnAction(e -> handleEditCommentAction(primaryStage, user, question, comment));
-
-            Button deleteButton = new Button("Delete");
-            deleteButton.setFont(Font.font(10));
-            deleteButton.setStyle("-fx-text-fill: #D32F2F;");
-            deleteButton.setOnAction(e -> handleDeleteCommentAction(primaryStage, user, question, comment));
-
-            footer.getChildren().addAll(spacer, editButton, deleteButton);
+            editButton.setFont(Font.font(11));
+            editButton.setOnAction(e -> new EditAnswerView(databaseHelper, adminFlag).show(primaryStage, user, comment));
+            footer.getChildren().add(editButton);
         }
+        if (showDelete) {
+            Button deleteButton = new Button("Delete");
+            deleteButton.setFont(Font.font(11));
+            deleteButton.setStyle("-fx-background-color: #FFCDD2;");
+            deleteButton.setOnAction(e -> handleDeleteCommentAction(primaryStage, user, question, comment));
+            footer.getChildren().add(deleteButton);
+        }
+
 
         VBox repliesContainer = new VBox(10);
         repliesContainer.setPadding(new Insets(5, 0, 0, 20));
@@ -289,7 +316,12 @@ public class QuestionDetailView {
     }
 
     private void handleDeleteQuestionAction(Stage primaryStage, User user, Question question) {
-        Alert confirmation = new Alert(Alert.AlertType.CONFIRMATION, "This will also delete all associated answers and comments.", ButtonType.OK, ButtonType.CANCEL);
+        if (!Authorization.canDeleteQuestion(user, databaseHelper, question, adminFlag)) {
+        	new Alert(Alert.AlertType.ERROR, "You do not have permission to delete this question.").showAndWait();
+        	return;
+        }
+    	
+    	Alert confirmation = new Alert(Alert.AlertType.CONFIRMATION, "This will also delete all associated answers and comments.", ButtonType.OK, ButtonType.CANCEL);
         confirmation.setTitle("Delete Question");
         confirmation.setHeaderText("Are you sure you want to delete this question?");
         Optional<ButtonType> result = confirmation.showAndWait();
@@ -297,7 +329,7 @@ public class QuestionDetailView {
         if (result.isPresent() && result.get() == ButtonType.OK) {
             try {
                 databaseHelper.deleteQuestion(question.getQuestionId().toString());
-                new DiscussionBoardView(databaseHelper).show(primaryStage, user);
+                new DiscussionBoardView(databaseHelper, adminFlag).show(primaryStage, user);
             } catch (SQLException ex) {
                 ex.printStackTrace();
                 new Alert(Alert.AlertType.ERROR, "Failed to delete the question.").showAndWait();
@@ -306,7 +338,12 @@ public class QuestionDetailView {
     }
 
     private void handleDeleteAnswerAction(Stage primaryStage, User user, Question question, Answer answer) {
-        Alert confirmation = new Alert(Alert.AlertType.CONFIRMATION, "This will permanently remove the answer and all its comments.", ButtonType.OK, ButtonType.CANCEL);
+    	if (!Authorization.canDeleteQuestion(user, databaseHelper, question, adminFlag)) {
+        	new Alert(Alert.AlertType.ERROR, "You do not have permission to delete this answer.").showAndWait();
+        	return;
+        }
+    	
+    	Alert confirmation = new Alert(Alert.AlertType.CONFIRMATION, "This will permanently remove the answer and all its comments.", ButtonType.OK, ButtonType.CANCEL);
         confirmation.setTitle("Delete Answer");
         confirmation.setHeaderText("Are you sure you want to delete this answer?");
         Optional<ButtonType> result = confirmation.showAndWait();
@@ -323,7 +360,12 @@ public class QuestionDetailView {
     }
 
     private void handleDeleteCommentAction(Stage primaryStage, User user, Question question, Comment comment) {
-        Alert confirmation = new Alert(Alert.AlertType.CONFIRMATION, "This will also permanently delete all replies to it.", ButtonType.OK, ButtonType.CANCEL);
+    	if (!Authorization.canDeleteQuestion(user, databaseHelper, question, adminFlag)) {
+        	new Alert(Alert.AlertType.ERROR, "You do not have permission to delete this comment.").showAndWait();
+        	return;
+        }
+    	
+    	Alert confirmation = new Alert(Alert.AlertType.CONFIRMATION, "This will also permanently delete all replies to it.", ButtonType.OK, ButtonType.CANCEL);
         confirmation.setTitle("Delete Comment");
         confirmation.setHeaderText("Are you sure you want to delete this comment?");
         Optional<ButtonType> result = confirmation.showAndWait();
