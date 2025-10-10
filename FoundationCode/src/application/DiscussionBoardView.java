@@ -144,10 +144,12 @@ public class DiscussionBoardView {
         HBox metadataBox = new HBox(15);
         metadataBox.setAlignment(Pos.CENTER_LEFT);
 
-        Label tagLabel = new Label(question.getTag().name());
+        Label tagLabel = new Label(question.getTag().toString());
+        tagLabel.setStyle("-fx-background-color: #E3F2FD; -fx-padding: 2 4 2 4; -fx-background-radius: 3;");
         tagLabel.setFont(Font.font(11));
         tagLabel.setTextFill(Color.WHITE);
         tagLabel.setPadding(new Insets(2, 6, 2, 6));
+
         tagLabel.setStyle("-fx-background-radius: 3;");
 
         // Apply color based on tag 
