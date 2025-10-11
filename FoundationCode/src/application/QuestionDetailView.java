@@ -231,6 +231,30 @@ public class QuestionDetailView {
         commentInputContainer.setManaged(false); 
         commentOnAnswerButton.setOnAction(e -> toggleCommentInput(primaryStage, user, question, commentInputContainer, answer, null));
 
+        VBox resolveContainer = new VBox(5);
+        resolveContainer.setManaged(false);
+        
+        // If this answer resolves the question, add an indicator
+        if (answer.getResolvesQuestion()) {
+            Label resolvedLabel = new Label("✔ accepted as resolution");
+            resolvedLabel.setTextFill(Color.DARKGREEN);
+            resolveContainer.getChildren().add(resolvedLabel);
+        } else if (user.getUserName().equals(question.getAuthor().getUserName())) {
+            // If current user is the Question's creator, add a button
+            // to mark answer as resolving the question
+            Button markAsResolutionButton = new Button("Mark as resolution");
+            markAsResolutionButton.setOnAction(e -> {
+                try {
+                    databaseHelper.updateAnswerResolutionStatus(answer.getAnswerId().toString(), true);
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                    new Alert(Alert.AlertType.ERROR, "Failed to mark answer as resolution.").showAndWait();
+                }
+            });
+
+            resolveContainer.getChildren().add(markAsResolutionButton);
+        }
+
         HBox footer = new HBox(10, commentOnAnswerButton);
         footer.setAlignment(Pos.CENTER_LEFT);
 
@@ -255,7 +279,7 @@ public class QuestionDetailView {
             footer.getChildren().add(deleteButton);
         }
 
-        answerBox.getChildren().addAll(answerBody, infoLabel, footer, commentInputContainer, commentsContainer, new Separator());
+        answerBox.getChildren().addAll(answerBody, infoLabel, footer, commentInputContainer, resolveContainer, commentsContainer, new Separator());
         return answerBox;
     }
 
