@@ -17,6 +17,7 @@ public class Answer {
     private final User author;
     private String body;
     private final ZonedDateTime creationTimestamp;
+    private boolean resolvesQuestion;
 
     private final List<Comment> comments;
 
@@ -29,18 +30,20 @@ public class Answer {
         this.author = author;
         this.body = body;
         this.creationTimestamp = ZonedDateTime.now();
+        this.resolvesQuestion = false;
         this.comments = new ArrayList<>();
     }
     
    
      // Constructs an Answer object from existing data. Used when recreating from database
 
-    public Answer(UUID id, Question parentQuestion, User author, String body, ZonedDateTime creationTimestamp) {
+    public Answer(UUID id, Question parentQuestion, User author, String body, ZonedDateTime creationTimestamp, boolean resolvesQuestion) {
         this.answerId = id;
         this.parentQuestion = parentQuestion;
         this.author = author;
         this.body = body;
         this.creationTimestamp = creationTimestamp;
+        this.resolvesQuestion = resolvesQuestion;
         this.comments = new ArrayList<>();
     }
 
@@ -76,6 +79,10 @@ public class Answer {
 
     public ZonedDateTime getCreationTimestamp() {
         return creationTimestamp;
+    }
+
+    public boolean getResolvesQuestion() {
+        return this.resolvesQuestion;
     }
 
 }

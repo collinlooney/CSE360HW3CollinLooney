@@ -114,6 +114,7 @@ public class DatabaseHelper {
                 + "    authorUserName  VARCHAR(255),"
                 + "    questionId      VARCHAR(36),"
                 + "    creationTimestamp TIMESTAMP WITH TIME ZONE,"
+		+ "    resolvesQuestion BOOLEAN DEFAULT FALSE,"
                 + "    FOREIGN KEY (authorUserName) REFERENCES cse360users(userName) ON DELETE CASCADE,"
                 + "    FOREIGN KEY (questionId) REFERENCES questions(id) ON DELETE CASCADE"
                 + ")";
@@ -650,7 +651,8 @@ public class DatabaseHelper {
                             question, 
                             author, 
                             rs.getString("body"),
-                            rs.getTimestamp("creationTimestamp").toInstant().atZone(ZoneId.systemDefault())
+                            rs.getTimestamp("creationTimestamp").toInstant().atZone(ZoneId.systemDefault()),
+			    rs.getBoolean("resolvesQuestion")
                         );
                         loadCommentTreeForAnswer(answer, userMap);
                         question.addAnswer(answer);
@@ -660,6 +662,15 @@ public class DatabaseHelper {
         }
     }
 
+    // Updates an answer as resolution / not resolution
+    public void updateAnswerResolutionStatus(String answerId, boolean resolvesQuestion) throws SQLException {
+        String sql = "UPDATE answers SET resolvesQuestion = ? WHERE id = ?";
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            pstmt.setBoolean(1, resolvesQuestion);
+            pstmt.setString(2, answerId);
+            pstmt.executeUpdate();
+        }
+    }
     
     // Comment Methods
 
