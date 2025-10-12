@@ -122,7 +122,7 @@ public class QuestionTest {
         return new Answer(q, makeUser(), body); 
     }
     
-    // This checks that the answer object is correctly added to the list of a specific question.
+    // Checks that the answer object is correctly added to the list of a specific question.
     @Test
     public void addAnswer_addsToList() {
     	
@@ -138,7 +138,7 @@ public class QuestionTest {
         assertTrue(q.getPotentialAnswers().contains(a));			
     }
     
-    // This checks that question is marked resolved with accepted answer and timestamp moves forward
+    // Checks that question is marked resolved with accepted answer and timestamp moves forward.
     @Test
     public void acceptAnswer_setsResolvedAndAccepted() {
         Answer a = makeAnswer("solution");
@@ -153,7 +153,7 @@ public class QuestionTest {
         assertFalse(q.getLastModifiedTimestamp().isBefore(t0));		
     }
     
-    // This test ensures an that answer cannot be accepted as resolving a question if it's not in the question's answer list.
+    // Ensures that an answer cannot be accepted as resolving a question if it's not in the question's answer list.
     @Test
     public void acceptAnswer_whenNotPresent_throws_andNoSideEffects() {
         Answer outsider = makeAnswer("not in list");
@@ -165,7 +165,7 @@ public class QuestionTest {
         assertEquals(QuestionStatus.OPEN, q.getStatus());
     }
     
-    // This purpose of this test is to verify that the constructor preserves what's passed in when a question object is created from the database.
+    // Verifies that the constructor preserves what's passed in when a question object is created from the database.
     @Test
     public void constructor_withExistingData_usesProvidedValues() {				
         UUID id = UUID.randomUUID();
