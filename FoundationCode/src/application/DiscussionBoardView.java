@@ -218,33 +218,32 @@ public class DiscussionBoardView {
         metadataBox.setAlignment(Pos.CENTER_LEFT);
 
         Label tagLabel = new Label(question.getTag().toString());
-        tagLabel.setStyle("-fx-background-color: #E3F2FD; -fx-padding: 2 4 2 4; -fx-background-radius: 3;");
-        tagLabel.setFont(Font.font(11));
-        tagLabel.setTextFill(Color.WHITE);
-        tagLabel.setPadding(new Insets(2, 6, 2, 6));
+        tagLabel.setFont(Font.font("System", 12));
+        tagLabel.setPadding(new Insets(3, 10, 3, 10));
+        tagLabel.setStyle("-fx-background-radius: 10; -fx-font-weight: 600;");
 
-        // Apply color based on tag
+        // Tag Colors
         switch (question.getTag()) {
             case GENERAL:
-                tagLabel.setStyle(tagLabel.getStyle() + "-fx-background-color: #3B82F6;");
+                tagLabel.setStyle(tagLabel.getStyle() + "-fx-background-color: #6C63AC; -fx-text-fill: white;");
                 break;
             case HOMEWORK:
-                tagLabel.setStyle(tagLabel.getStyle() + "-fx-background-color: #10B981;");
+                tagLabel.setStyle(tagLabel.getStyle() + "-fx-background-color: #EF7FAF; -fx-text-fill: white;");
                 break;
             case TEAM_PROJECT:
-                tagLabel.setStyle(tagLabel.getStyle() + "-fx-background-color: #F59E0B;");
+                tagLabel.setStyle(tagLabel.getStyle() + "-fx-background-color: #EC6A5C; -fx-text-fill: white;");
                 break;
             case QUIZZES:
-                tagLabel.setStyle(tagLabel.getStyle() + "-fx-background-color: #8B5CF6;");
+                tagLabel.setStyle(tagLabel.getStyle() + "-fx-background-color: #F89963; -fx-text-fill: #1F2937;"); // dark gray
                 break;
             case EXAMS:
-                tagLabel.setStyle(tagLabel.getStyle() + "-fx-background-color: #EF4444;");
+                tagLabel.setStyle(tagLabel.getStyle() + "-fx-background-color: #F5C46D; -fx-text-fill: #1F2937;"); // dark gray
                 break;
             case TEAM_FORMATION:
-                tagLabel.setStyle(tagLabel.getStyle() + "-fx-background-color: #0EA5E9;");
+                tagLabel.setStyle(tagLabel.getStyle() + "-fx-background-color: #9BC48C; -fx-text-fill: #1F2937;"); // dark gray
                 break;
             default:
-                tagLabel.setStyle(tagLabel.getStyle() + "-fx-background-color: #6B7280;");
+                tagLabel.setStyle(tagLabel.getStyle() + "-fx-background-color: #6B7280; -fx-text-fill: white;");
                 break;
         }
 
