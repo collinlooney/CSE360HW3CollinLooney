@@ -94,39 +94,47 @@ public class AskQuestionView {
 
         // Tag color
         String[][] tags = {
-                {"GENERAL", "#6366F1"},
-                {"HOMEWORK", "#A855F7"},
-                {"TEAM PROJECT", "#3B82F6"},
-                {"QUIZZES", "#14B8A6"},
-                {"EXAMS", "#F43F5E"},
-                {"TEAM FORMATION", "#F59E0B"}
+                {"GENERAL", "#6C63AC"},
+                {"HOMEWORK", "#EF7FAF"},
+                {"TEAM PROJECT", "#EC6A5C"},
+                {"QUIZZES", "#F89963"},
+                {"EXAMS", "#F5C46D"},
+                {"TEAM FORMATION", "#9BC48C"}
         };
 
         for (String[] tag : tags) {
-        	// Creates a tag button for each category with unique color
+            // Creates a tag button for each category with unique color
             String text = tag[0];
             String color = tag[1];
 
             ToggleButton btn = new ToggleButton(text);
             btn.setToggleGroup(tagGroup);
             btn.setPrefHeight(28);
-            btn.setMinWidth(90);
+            btn.setMinWidth(100);
 
             String defaultStyle = "-fx-background-color: white; -fx-text-fill: #374151; -fx-font-size: 12px; "
                     + "-fx-font-weight: 500; -fx-border-color: #D1D5DB; -fx-border-width: 1.2; "
-                    + "-fx-border-radius: 5; -fx-background-radius: 5; -fx-cursor: hand;";
-            String selectedStyle = String.format("-fx-background-color: %s; -fx-text-fill: white; "
-                    + "-fx-font-size: 12px; -fx-font-weight: 500; -fx-border-color: %s; "
-                    + "-fx-border-width: 1.2; -fx-border-radius: 5; -fx-background-radius: 5;", color, color);
+                    + "-fx-border-radius: 6; -fx-background-radius: 6; -fx-cursor: hand;";
+
+            String textColor = (text.equals("QUIZZES") || text.equals("EXAMS") || text.equals("TEAM FORMATION"))
+                    ? "#1F2937" // dark text for lighter tags
+                    : "white";   // white text for darker tags
+
+            String selectedStyle = String.format(
+                    "-fx-background-color: %s; -fx-text-fill: %s; -fx-font-size: 12px; "
+                    + "-fx-font-weight: 500; -fx-border-color: %s; -fx-border-width: 1.2; "
+                    + "-fx-border-radius: 6; -fx-background-radius: 6;",
+                    color, textColor, color
+            );
 
             btn.setStyle(defaultStyle);
-
             btn.selectedProperty().addListener((obs, oldVal, isSelected) -> {
                 btn.setStyle(isSelected ? selectedStyle : defaultStyle);
             });
 
             tagPane.getChildren().add(btn);
         }
+
 
         // Show selected tag in feedback area (Can remove if you guys don't think its needed)
         tagGroup.selectedToggleProperty().addListener((obs, oldToggle, newToggle) -> {
@@ -299,18 +307,21 @@ public class AskQuestionView {
 
         // Assigns a color to the tag label based on its type for visual consistency with tag buttons
         String color;
+        String textColor = "white";
         switch (question.getTag()) {
-            case GENERAL -> color = "#6366F1";
-            case HOMEWORK -> color = "#A855F7";     
-            case TEAM_PROJECT -> color = "#3B82F6";
-            case QUIZZES -> color = "#14B8A6";
-            case EXAMS -> color = "#F43F5E";
-            case TEAM_FORMATION -> color = "#F59E0B";
-            default -> color = "#6B7280";     
+            case GENERAL -> color = "#6C63AC";
+            case HOMEWORK -> color = "#EF7FAF";
+            case TEAM_PROJECT -> color = "#EC6A5C";
+            case QUIZZES -> { color = "#F89963"; textColor = "#1F2937"; }
+            case EXAMS -> { color = "#F5C46D"; textColor = "#1F2937"; }
+            case TEAM_FORMATION -> { color = "#9BC48C"; textColor = "#1F2937"; }
+            default -> color = "#6B7280";
         }
-
         tagLabel.setStyle(String.format(
-                "-fx-background-color: %s; -fx-padding: 2 6 2 6; -fx-background-radius: 3;", color));
+                "-fx-background-color: %s; -fx-text-fill: %s; -fx-padding: 2 6 2 6; -fx-background-radius: 3;",
+                color, textColor
+        ));
+
         
         // Display author name or "Anonymous" if chosen
         String author = question.isAnonymous() ? "Anonymous" : question.getAuthor().getName();
