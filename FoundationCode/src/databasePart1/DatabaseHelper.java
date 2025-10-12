@@ -133,6 +133,19 @@ public class DatabaseHelper {
                 + ")";
             statement.execute(commentsTable);
 
+	    // Tracks when each user last viewed a question’s answers
+	    String viewedAnswersTable = """
+	    CREATE TABLE IF NOT EXISTS viewed_answers (
+	        user_id VARCHAR(255),
+	        question_id VARCHAR(255),
+	        last_viewed TIMESTAMP,
+	        PRIMARY KEY (user_id, question_id),
+	        FOREIGN KEY (user_id) REFERENCES cse360users(userName) ON DELETE CASCADE,
+	        FOREIGN KEY (question_id) REFERENCES questions(id) ON DELETE CASCADE
+	    )
+	    """;
+	    statement.execute(viewedAnswersTable);
+
             System.out.println("Tables created or already exist.");
 		}
 	}
@@ -220,7 +233,6 @@ public class DatabaseHelper {
 			}
 		}
 	}
-
 
 	// Updates stored information for `userName` with `newUserInfo`.
 	// Does not update userName field.
@@ -779,5 +791,41 @@ public class DatabaseHelper {
         }
         return false;
     }
-}
+    
+    // Updates or inserts the timestamp when a user last viewed a question’s answers
+    public void updateLastViewed(String userId, String questionId) throws SQLException {
+        verifyConnection();
+        String sql = """
+            MERGE INTO viewed_answers (user_id, question_id, last_viewed)
+            KEY (user_id, question_id)
+            VALUES (?, ?, CURRENT_TIMESTAMP)
+        """;
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            pstmt.setString(1, userId);
+            pstmt.setString(2, questionId);
+            pstmt.executeUpdate();
+        }
+    }
 
+    // Returns the count of answers that were added after the user last viewed the question
+    public int getUnseenAnswerCount(String userId, String questionId) throws SQLException {
+        verifyConnection();
+        String sql = """
+            SELECT COUNT(*) FROM answers a
+            LEFT JOIN viewed_answers v
+            ON a.questionId = v.question_id AND v.user_id = ?
+            WHERE a.questionId = ?
+            AND (v.last_viewed IS NULL OR a.creationTimestamp > v.last_viewed)
+        """;
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            pstmt.setString(1, userId);
+            pstmt.setString(2, questionId);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+        }
+        return 0;
+    }
+}
