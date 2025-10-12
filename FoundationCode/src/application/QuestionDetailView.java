@@ -14,6 +14,7 @@ import java.util.Optional;
 import databasePart1.DatabaseHelper;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
@@ -33,15 +34,15 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
+import javafx.scene.layout.StackPane; // Used for overlaying solved badge on accepted answers
+
 
 // Builds and displays the UI for a single question, including answers and comments.
- 
 public class QuestionDetailView {
 
     private final DatabaseHelper databaseHelper;
     private final boolean adminFlag; 
 
-    
     public QuestionDetailView(DatabaseHelper databaseHelper, boolean adminFlag) {
         this.databaseHelper = databaseHelper;
         this.adminFlag = adminFlag;
@@ -102,9 +103,8 @@ public class QuestionDetailView {
         titleLabel.setMaxWidth(Double.MAX_VALUE);
         titleBar.getChildren().add(titleLabel);
 
-        //admin/owner controls 
-        
-        boolean showEdit   = Authorization.canEditQuestion(user, databaseHelper, question);
+        // admin/owner controls
+        boolean showEdit = Authorization.canEditQuestion(user, databaseHelper, question);
         boolean showDelete = Authorization.canDeleteQuestion(user, databaseHelper, question, adminFlag);
 
         HBox ownerControls = new HBox(10);
@@ -127,7 +127,6 @@ public class QuestionDetailView {
             titleBar.getChildren().add(ownerControls);
         }
 
-
         // Metadata UI
         Label authorLabel = new Label(question.isAnonymous() ? "Anonymous" : question.getAuthor().getName());
         authorLabel.setFont(Font.font("System", FontWeight.BOLD, 14));
@@ -148,19 +147,35 @@ public class QuestionDetailView {
         metadataPane.setLeft(leftMetadata);
         metadataPane.setRight(rightMetadata);
 
+        // QUESTION BODY
+        // Container with padding, border, and background.
         Label bodyLabel = new Label(question.getBody());
         bodyLabel.setWrapText(true);
-        bodyLabel.setPadding(new Insets(10, 0, 10, 0));
+        bodyLabel.setTextFill(Color.web("#1F2937"));
+        bodyLabel.setStyle("-fx-font-size: 14px;");
 
+        VBox bodyContainer = new VBox(bodyLabel);
+        bodyContainer.setPadding(new Insets(16));
+        bodyContainer.setStyle(
+            "-fx-background-color: #F9FAFB;" +
+            "-fx-background-radius: 8;" +
+            "-fx-border-radius: 8;" +
+            "-fx-border-color: #E5E7EB;" +
+            "-fx-border-width: 1;"
+        );
+        // ANSWERS SECTION
+        // Loads and displays all answers below the question, including accepted-answer highlighting and nested comments.
         VBox answersSection = createAnswersSection(primaryStage, user, question);
-
-        postBox.getChildren().addAll(titleBar, metadataPane, new Separator(), bodyLabel, new Separator(), answersSection);
+        postBox.getChildren().addAll(titleBar, metadataPane, new Separator(), bodyContainer, new Separator(), answersSection);
         return postBox;
     }
 
     private VBox createAnswersSection(Stage primaryStage, User user, Question question) {
         VBox sectionVBox = new VBox(15);
         List<Answer> answers = question.getPotentialAnswers();
+        // Sort so that accepted answers appear first
+        answers.sort((a, b) -> Boolean.compare(!a.getResolvesQuestion(), !b.getResolvesQuestion()));
+
 
         Label answersHeader = new Label();
         answersHeader.setFont(Font.font("System", FontWeight.BOLD, 18));
@@ -208,15 +223,29 @@ public class QuestionDetailView {
     }
 
     private Node createAnswerNode(Stage primaryStage, User user, Question question, Answer answer) {
-        VBox answerBox = new VBox(8);
+        // ANSWER CARD
+        // Card with border, shadow, and padding for each answer.
+        VBox answerBox = new VBox();
+        answerBox.setPadding(new Insets(14));
+        answerBox.setSpacing(6);
+        answerBox.setStyle(
+            "-fx-background-color: linear-gradient(to right, #F8FAF8, #F8FAFA);" +
+            "-fx-border-color: #E0E0E0;" +
+            "-fx-border-width: 1.5;" +
+            "-fx-border-radius: 10;" +
+            "-fx-background-radius: 10;" +
+            "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.03), 6, 0, 0, 1);"
+        );
 
         Label answerBody = new Label(answer.getBody());
         answerBody.setWrapText(true);
+        answerBody.setStyle("-fx-text-fill: #374151; -fx-font-size: 14px;");
 
         String authorName = answer.getAuthor().getName();
         String timeSince = formatTimeSince(answer.getCreationTimestamp());
         Label infoLabel = new Label("answered by " + authorName + " • " + timeSince);
-        infoLabel.setTextFill(Color.GRAY);
+        infoLabel.setTextFill(Color.web("#6B7280"));
+        infoLabel.setStyle("-fx-font-size: 12px;");
 
         VBox commentsContainer = new VBox(10);
         commentsContainer.setPadding(new Insets(5, 0, 0, 20));
@@ -225,41 +254,26 @@ public class QuestionDetailView {
                 commentsContainer.getChildren().add(createCommentNode(primaryStage, user, question, comment));
             }
         }
-
-        Button commentOnAnswerButton = new Button("Comment");
-        VBox commentInputContainer = new VBox(5);
-        commentInputContainer.setManaged(false); 
-        commentOnAnswerButton.setOnAction(e -> toggleCommentInput(primaryStage, user, question, commentInputContainer, answer, null));
-
-        VBox resolveContainer = new VBox(5);
-        resolveContainer.setManaged(false);
         
-        // If this answer resolves the question, add an indicator
-        if (answer.getResolvesQuestion()) {
-            Label resolvedLabel = new Label("✔ accepted as resolution");
-            resolvedLabel.setTextFill(Color.DARKGREEN);
-            resolveContainer.getChildren().add(resolvedLabel);
-        } else if (user.getUserName().equals(question.getAuthor().getUserName())) {
-            // If current user is the Question's creator, add a button
-            // to mark answer as resolving the question
-            Button markAsResolutionButton = new Button("Mark as resolution");
-            markAsResolutionButton.setOnAction(e -> {
-                try {
-                    databaseHelper.updateAnswerResolutionStatus(answer.getAnswerId().toString(), true);
-                } catch (SQLException ex) {
-                    ex.printStackTrace();
-                    new Alert(Alert.AlertType.ERROR, "Failed to mark answer as resolution.").showAndWait();
-                }
-            });
+        // COMMENT BUTTON
+        // Style for comment button
+        Button commentOnAnswerButton = new Button("Comment");
+        commentOnAnswerButton.setStyle(
+            "-fx-background-color: transparent;" +
+            "-fx-text-fill: #6B7280;" +
+            "-fx-underline: true;" +
+            "-fx-font-size: 12px;"
+        );
+        commentOnAnswerButton.setCursor(Cursor.HAND);
 
-            resolveContainer.getChildren().add(markAsResolutionButton);
-        }
+        VBox commentInputContainer = new VBox(5);
+        commentInputContainer.setManaged(false);
+        commentOnAnswerButton.setOnAction(e -> toggleCommentInput(primaryStage, user, question, commentInputContainer, answer, null));
 
         HBox footer = new HBox(10, commentOnAnswerButton);
         footer.setAlignment(Pos.CENTER_LEFT);
 
-        //admin/owner controls 
-        
+        // admin/owner controls
         boolean showEdit = Authorization.canEditAnswer(user, databaseHelper, answer);
         boolean showDelete = Authorization.canDeleteAnswer(user, databaseHelper, answer, adminFlag);
 
@@ -269,17 +283,102 @@ public class QuestionDetailView {
 
         if (showEdit) {
             Button editButton = new Button("Edit");
+            editButton.setStyle("-fx-font-size: 12px;");
             editButton.setOnAction(e -> new EditAnswerView(databaseHelper, adminFlag).show(primaryStage, user, answer));
             footer.getChildren().add(editButton);
         }
         if (showDelete) {
+        	//DELETE BUTTON
             Button deleteButton = new Button("Delete");
-            deleteButton.setStyle("-fx-background-color: #FFCDD2;");
+            deleteButton.setStyle(
+                "-fx-background-color: #FFE5E5;" +
+                "-fx-text-fill: #C62828;" +
+                "-fx-font-size: 12px;" +
+                "-fx-background-radius: 5;"
+            );
             deleteButton.setOnAction(e -> handleDeleteAnswerAction(primaryStage, user, question, answer));
             footer.getChildren().add(deleteButton);
         }
 
-        answerBox.getChildren().addAll(answerBody, infoLabel, footer, commentInputContainer, resolveContainer, commentsContainer, new Separator());
+        // ACCEPTED ANSWER STATE
+        // If this answer is marked as the question’s resolution, highlight and show SOLVED badge.
+        if (answer.getResolvesQuestion()) {
+            answerBox.setStyle(
+                "-fx-background-color: linear-gradient(to right, #E8F5E9, #F1FAF2);" +
+                "-fx-border-color: #81C784;" +
+                "-fx-border-width: 2;" +
+                "-fx-border-radius: 10;" +
+                "-fx-background-radius: 10;" +
+                "-fx-effect: dropshadow(gaussian, rgba(76,175,80,0.25), 8, 0, 0, 2);"
+            );
+
+            Label solvedBadge = new Label("✔ SOLVED");
+            solvedBadge.setStyle(
+                "-fx-background-color: #4CAF50;" +
+                "-fx-text-fill: white;" +
+                "-fx-font-weight: bold;" +
+                "-fx-font-size: 10px;" +
+                "-fx-padding: 3 8 3 8;" +
+                "-fx-background-radius: 12;"
+            );
+
+            // Overlay badge using StackPane
+            StackPane badgeContainer = new StackPane();
+            badgeContainer.getChildren().addAll(answerBox, solvedBadge);
+            StackPane.setAlignment(solvedBadge, Pos.TOP_RIGHT);
+            StackPane.setMargin(solvedBadge, new Insets(4, 6, 0, 0));
+
+            // Allow question creator to unmark accepted answer
+            if (user != null && user.getUserName().equals(question.getAuthor().getUserName())) {
+                Button unmarkButton = new Button("Unmark as accepted answer");
+                unmarkButton.setCursor(Cursor.HAND);
+                unmarkButton.setStyle(
+                    "-fx-background-color: transparent;" +
+                    "-fx-text-fill: #6B7280;" +
+                    "-fx-font-size: 12px;" +
+                    "-fx-underline: true;"
+                );
+                unmarkButton.setOnAction(e -> {
+                    try {
+                        databaseHelper.updateAnswerResolutionStatus(answer.getAnswerId().toString(), false);
+                        new Alert(Alert.AlertType.INFORMATION, "Answer unmarked as accepted.").showAndWait();
+                        this.show(primaryStage, user, question);
+                    } catch (SQLException ex) {
+                        ex.printStackTrace();
+                        new Alert(Alert.AlertType.ERROR, "Failed to unmark accepted answer.").showAndWait();
+                    }
+                });
+                footer.getChildren().add(unmarkButton);
+            }
+
+            answerBox.getChildren().addAll(answerBody, infoLabel, footer, commentInputContainer, commentsContainer, new Separator());
+            return badgeContainer;
+        }
+        // MARK ANSWER AS ACCEPTED
+        // If current user is the author, shows button to mark answer as accepted.
+        else if (user != null && user.getUserName().equals(question.getAuthor().getUserName())) {
+            Button markAsResolutionButton = new Button("Mark as accepted answer");
+            markAsResolutionButton.setCursor(Cursor.HAND);
+            markAsResolutionButton.setStyle(
+                "-fx-background-color: transparent;" +
+                "-fx-text-fill: #6B7280;" +
+                "-fx-font-size: 12px;" +
+                "-fx-underline: true;"
+            );
+            markAsResolutionButton.setOnAction(e -> {
+                try {
+                    databaseHelper.updateAnswerResolutionStatus(answer.getAnswerId().toString(), true);
+                    new Alert(Alert.AlertType.INFORMATION, "Marked as accepted answer!").showAndWait();
+                    this.show(primaryStage, user, question);
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                    new Alert(Alert.AlertType.ERROR, "Failed to mark answer as accepted.").showAndWait();
+                }
+            });
+            footer.getChildren().add(markAsResolutionButton);
+        }
+
+        answerBox.getChildren().addAll(answerBody, infoLabel, footer, commentInputContainer, commentsContainer, new Separator());
         return answerBox;
     }
 
@@ -300,9 +399,8 @@ public class QuestionDetailView {
 
         HBox footer = new HBox(10, replyButton);
         footer.setAlignment(Pos.CENTER_LEFT);
-        
-        //owner/admin controls
-        
+
+        // owner/admin controls
         boolean showEdit = Authorization.canEditComment(user, databaseHelper, comment);
         boolean showDelete = Authorization.canDeleteComment(user, databaseHelper, comment, adminFlag);
 
@@ -323,7 +421,6 @@ public class QuestionDetailView {
             deleteButton.setOnAction(e -> handleDeleteCommentAction(primaryStage, user, question, comment));
             footer.getChildren().add(deleteButton);
         }
-
 
         VBox repliesContainer = new VBox(10);
         repliesContainer.setPadding(new Insets(5, 0, 0, 20));
