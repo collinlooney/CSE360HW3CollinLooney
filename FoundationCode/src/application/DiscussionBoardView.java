@@ -62,6 +62,10 @@ public class DiscussionBoardView {
 
         // Filter setup
         // Allows user to filter pre existing questions
+        ComboBox<String> showFilter = new ComboBox<>();
+        showFilter.getItems().addAll("All Questions", "My Questions");
+        showFilter.setValue("All Questions");
+
         ComboBox<String> statusFilter = new ComboBox<>();
         statusFilter.getItems().addAll("All", "Resolved", "Unresolved");
         statusFilter.setValue("All");
@@ -76,14 +80,16 @@ public class DiscussionBoardView {
 
         Button resetButton = new Button("Reset");
         resetButton.setOnAction(e -> {
+            showFilter.setValue("All Questions");
             statusFilter.setValue("All");
             tagFilter.setValue(null);
             sortFilter.setValue("Newest First");
             searchField.clear();
-            filterQuestions("", primaryStage, user, statusFilter, tagFilter, sortFilter);
+            filterQuestions("", primaryStage, user, showFilter, statusFilter, tagFilter, sortFilter);
         });
 
-        HBox filterBar = new HBox(10, new Label("Status:"), statusFilter,
+        HBox filterBar = new HBox(10, new Label("Show:"), showFilter,
+                new Label("Status:"), statusFilter,
                 new Label("Tag:"), tagFilter,
                 new Label("Sort:"), sortFilter,
                 resetButton);
@@ -91,13 +97,14 @@ public class DiscussionBoardView {
         filterBar.setAlignment(Pos.CENTER_LEFT);
 
         // Live updates on search or filters
-        searchField.textProperty().addListener((obs, oldText, newText) -> filterQuestions(newText, primaryStage, user, statusFilter, tagFilter, sortFilter));
-        statusFilter.setOnAction(e -> filterQuestions(searchField.getText(), primaryStage, user, statusFilter, tagFilter, sortFilter));
-        tagFilter.setOnAction(e -> filterQuestions(searchField.getText(), primaryStage, user, statusFilter, tagFilter, sortFilter));
-        sortFilter.setOnAction(e -> filterQuestions(searchField.getText(), primaryStage, user, statusFilter, tagFilter, sortFilter));
+        searchField.textProperty().addListener((obs, oldText, newText) -> filterQuestions(newText, primaryStage, user, showFilter, statusFilter, tagFilter, sortFilter));
+        showFilter.setOnAction(e -> filterQuestions(searchField.getText(), primaryStage, user, showFilter, statusFilter, tagFilter, sortFilter));
+        statusFilter.setOnAction(e -> filterQuestions(searchField.getText(), primaryStage, user, showFilter, statusFilter, tagFilter, sortFilter));
+        tagFilter.setOnAction(e -> filterQuestions(searchField.getText(), primaryStage, user, showFilter, statusFilter, tagFilter, sortFilter));
+        sortFilter.setOnAction(e -> filterQuestions(searchField.getText(), primaryStage, user, showFilter, statusFilter, tagFilter, sortFilter));
 
         // Initial population of the question list
-        filterQuestions("", primaryStage, user, statusFilter, tagFilter, sortFilter);
+        filterQuestions("", primaryStage, user, showFilter, statusFilter, tagFilter, sortFilter);
 
         // Scroll pane for the posts
         ScrollPane scrollPane = new ScrollPane(postsContainer);
@@ -125,6 +132,7 @@ public class DiscussionBoardView {
 
     // Private Helper Methods
     private void filterQuestions(String searchText, Stage primaryStage, User user,
+                                 ComboBox<String> showFilter,
                                  ComboBox<String> statusFilter,
                                  ComboBox<Tags> tagFilter,
                                  ComboBox<String> sortFilter) {
@@ -136,6 +144,11 @@ public class DiscussionBoardView {
 
             // search filter
             questions.removeIf(q -> !q.getTitle().toLowerCase().contains(lowerCaseSearch));
+
+            // show filter
+            if ("My Questions".equals(showFilter.getValue())) {
+                questions.removeIf(q -> !q.getAuthor().getUserName().equals(user.getUserName()));
+            }
 
             // resolved/unresolved filter
             if ("Resolved".equals(statusFilter.getValue())) {
