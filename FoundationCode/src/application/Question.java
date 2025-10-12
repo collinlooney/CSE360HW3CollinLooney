@@ -67,6 +67,7 @@ public class Question {
 
 
     public void acceptAnswer(Answer answer) {
+    	 System.out.println("DBG acceptAnswer: contains=" + potentialAnswers.contains(answer));
         if (potentialAnswers.contains(answer)) {
             this.acceptedAnswer = answer;
             this.status = QuestionStatus.RESOLVED;
