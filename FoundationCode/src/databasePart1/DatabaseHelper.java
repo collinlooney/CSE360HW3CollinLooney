@@ -766,6 +766,18 @@ public class DatabaseHelper {
             answer.addComment(comment);
         }
     }
-	
-
+    // Checks whether a given question has an accepted (resolved) answer.
+    public boolean hasAcceptedAnswer(String questionId) throws SQLException {
+        String query = "SELECT COUNT(*) FROM answers WHERE questionId = ? AND resolvesQuestion = TRUE";
+        try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+            pstmt.setString(1, questionId);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
+                }
+            }
+        }
+        return false;
+    }
 }
+
