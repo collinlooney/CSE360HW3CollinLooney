@@ -156,5 +156,16 @@ public class Question {
     public Answer getAcceptedAnswer() {
         return acceptedAnswer;
     }
+    // Checks whether this question has an accepted (resolved) answer.
+    public boolean isResolved() {
+        if (potentialAnswers == null) return false;
+        for (Answer a : potentialAnswers) {
+            if (a.getResolvesQuestion()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 
 }
