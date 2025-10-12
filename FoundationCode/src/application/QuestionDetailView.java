@@ -312,7 +312,7 @@ public class QuestionDetailView {
                 "-fx-effect: dropshadow(gaussian, rgba(76,175,80,0.25), 8, 0, 0, 2);"
             );
 
-            Label solvedBadge = new Label("✔ SOLVED");
+            Label solvedBadge = new Label("SOLVED");
             solvedBadge.setStyle(
                 "-fx-background-color: #4CAF50;" +
                 "-fx-text-fill: white;" +
@@ -555,8 +555,7 @@ public class QuestionDetailView {
             inputContainer.getChildren().addAll(commentArea, postButton);
             inputContainer.setManaged(true);
         }
-    }
-
+    }    
     private String formatTimeSince(ZonedDateTime time) {
         if (time == null) return "some time ago";
         Duration duration = Duration.between(time, ZonedDateTime.now());
