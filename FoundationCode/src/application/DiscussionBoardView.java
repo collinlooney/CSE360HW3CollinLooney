@@ -69,7 +69,7 @@ public class DiscussionBoardView {
         showFilter.setValue("All Questions");
 
         ComboBox<String> statusFilter = new ComboBox<>();
-        statusFilter.getItems().addAll("All", "Resolved", "Unresolved");
+        statusFilter.getItems().addAll("All", "Resolved", "Unresolved", "Answered", "Unanswered");
         statusFilter.setValue("All");
 
         ComboBox<Tags> tagFilter = new ComboBox<>();
@@ -152,7 +152,7 @@ public class DiscussionBoardView {
                 questions.removeIf(q -> !q.getAuthor().getUserName().equals(user.getUserName()));
             }
 
-            // resolved/unresolved filter
+            // resolved/unresolved/answered/unanswered filter
             if ("Resolved".equals(statusFilter.getValue())) {
                 questions.removeIf(q -> {
                     try {
@@ -169,6 +169,10 @@ public class DiscussionBoardView {
                         return false;
                     }
                 });
+            } else if ("Answered".equals(statusFilter.getValue())) {
+                questions.removeIf(q -> databaseHelper.getAnswerCountForQuestion(q.getQuestionId().toString()) == 0);
+            } else if ("Unanswered".equals(statusFilter.getValue())) {
+                questions.removeIf(q -> databaseHelper.getAnswerCountForQuestion(q.getQuestionId().toString()) > 0);
             }
 
             // tag filter
