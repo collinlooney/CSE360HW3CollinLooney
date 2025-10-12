@@ -10,13 +10,13 @@ public class UserTest {
     public void constructorWiresFields_andStoresRoles() {
         
     	User u = new User(
-            "skyler", "Skyler", "carwashlady@aol.com", "pw",
+            "skyler", "Skyler", "carwash@aol.com", "pw",
             List.of(Role.ADMIN, Role.BASIC_USER, Role.STUDENT)
         );
 
         assertEquals("skyler", u.getUserName());
         assertEquals("Skyler", u.getName());
-        assertEquals("carwashlady@aol.com", u.getEmail());
+        assertEquals("carwash@aol.com", u.getEmail());
         assertEquals("pw", u.getPassword());
         assertEquals(3, u.getRoles().size());
         assertTrue(u.getRoles().contains(Role.ADMIN));
