@@ -150,9 +150,7 @@ public class DiscussionBoardView {
         tagLabel.setTextFill(Color.WHITE);
         tagLabel.setPadding(new Insets(2, 6, 2, 6));
 
-        tagLabel.setStyle("-fx-background-radius: 3;");
-
-        // Apply color based on tag 
+        // Apply color based on tag
         switch (question.getTag()) {
             case GENERAL:
                 tagLabel.setStyle(tagLabel.getStyle() + "-fx-background-color: #3B82F6;");
@@ -188,8 +186,32 @@ public class DiscussionBoardView {
         Label answersLabel = new Label("• " + answerCount + (answerCount == 1 ? " answer" : " answers"));
         answersLabel.setTextFill(Color.DARKBLUE);
 
+        // Resolution status label
+        Label statusLabel = new Label();
+        boolean resolved = false;
+        try {
+            // Checks if any answer in DB is marked as resolving this question
+            resolved = databaseHelper.hasAcceptedAnswer(question.getQuestionId().toString());
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        if (resolved) {
+            statusLabel.setText("Resolved");
+            statusLabel.setTextFill(Color.web("#388E3C"));
+            statusLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 12px;");
+        } else {
+            statusLabel.setText("Unresolved");
+            statusLabel.setTextFill(Color.web("#9E9E9E"));
+            statusLabel.setStyle("-fx-font-size: 12px;");
+        }
+
+        // Combine title and status
+        HBox headerRow = new HBox(10, titleLabel, statusLabel);
+        headerRow.setAlignment(Pos.CENTER_LEFT);
+
         metadataBox.getChildren().addAll(tagLabel, authorLabel, timeLabel, answersLabel);
-        summaryBox.getChildren().addAll(titleLabel, metadataBox);
+        summaryBox.getChildren().addAll(headerRow, metadataBox);
 
         return summaryBox;
     }
