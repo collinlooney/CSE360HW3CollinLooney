@@ -5,7 +5,6 @@ import application.Authorization;
 import java.sql.SQLException;
 import java.time.Duration;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 import databasePart1.DatabaseHelper;
@@ -15,6 +14,7 @@ import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
@@ -35,10 +35,8 @@ public class DiscussionBoardView {
     // fields
     private final DatabaseHelper databaseHelper;
     private TextField searchField;
-    
     // The main container that holds the list of question summary nodes. 
     private VBox postsContainer;
-    
     // flag for if user is admin
     private final boolean adminFlag; 
 
@@ -57,14 +55,49 @@ public class DiscussionBoardView {
         searchField = new TextField();
         searchField.setPromptText("Search questions by title...");
         searchField.setPrefHeight(35);
-        searchField.textProperty().addListener((obs, oldText, newText) -> filterQuestions(newText, primaryStage, user));
 
         HBox searchBox = new HBox(searchField);
         HBox.setHgrow(searchField, Priority.ALWAYS);
         searchBox.setPadding(new Insets(0, 10, 0, 10));
 
+        // Filter setup
+        // Allows user to filter pre existing questions
+        ComboBox<String> statusFilter = new ComboBox<>();
+        statusFilter.getItems().addAll("All", "Resolved", "Unresolved");
+        statusFilter.setValue("All");
+
+        ComboBox<Tags> tagFilter = new ComboBox<>();
+        tagFilter.getItems().addAll(Tags.values());
+        tagFilter.setPromptText("All Tags");
+
+        ComboBox<String> sortFilter = new ComboBox<>();
+        sortFilter.getItems().addAll("Newest First", "Oldest First");
+        sortFilter.setValue("Newest First");
+
+        Button resetButton = new Button("Reset");
+        resetButton.setOnAction(e -> {
+            statusFilter.setValue("All");
+            tagFilter.setValue(null);
+            sortFilter.setValue("Newest First");
+            searchField.clear();
+            filterQuestions("", primaryStage, user, statusFilter, tagFilter, sortFilter);
+        });
+
+        HBox filterBar = new HBox(10, new Label("Status:"), statusFilter,
+                new Label("Tag:"), tagFilter,
+                new Label("Sort:"), sortFilter,
+                resetButton);
+        filterBar.setPadding(new Insets(10));
+        filterBar.setAlignment(Pos.CENTER_LEFT);
+
+        // Live updates on search or filters
+        searchField.textProperty().addListener((obs, oldText, newText) -> filterQuestions(newText, primaryStage, user, statusFilter, tagFilter, sortFilter));
+        statusFilter.setOnAction(e -> filterQuestions(searchField.getText(), primaryStage, user, statusFilter, tagFilter, sortFilter));
+        tagFilter.setOnAction(e -> filterQuestions(searchField.getText(), primaryStage, user, statusFilter, tagFilter, sortFilter));
+        sortFilter.setOnAction(e -> filterQuestions(searchField.getText(), primaryStage, user, statusFilter, tagFilter, sortFilter));
+
         // Initial population of the question list
-        filterQuestions("", primaryStage, user);
+        filterQuestions("", primaryStage, user, statusFilter, tagFilter, sortFilter);
 
         // Scroll pane for the posts
         ScrollPane scrollPane = new ScrollPane(postsContainer);
@@ -73,15 +106,15 @@ public class DiscussionBoardView {
 
         Button backButton = new Button("← Back to Main Menu");
         backButton.setOnAction(e -> {
-        	if (adminFlag) {
-        		new AdminHomePage(databaseHelper).show(primaryStage, user);
-        	} else {
-        		new UserHomePage(databaseHelper).show(primaryStage, user);
-        	}
+            if (adminFlag) {
+                new AdminHomePage(databaseHelper).show(primaryStage, user);
+            } else {
+                new UserHomePage(databaseHelper).show(primaryStage, user);
+            }
         });
 
         // Final layout container
-        VBox container = new VBox(10, backButton, searchBox, scrollPane);
+        VBox container = new VBox(10, backButton, searchBox, filterBar, scrollPane);
         container.setPadding(new Insets(10));
         VBox.setVgrow(scrollPane, Priority.ALWAYS);
         
@@ -91,35 +124,62 @@ public class DiscussionBoardView {
     }
 
     // Private Helper Methods
-    private void filterQuestions(String searchText, Stage primaryStage, User user) {
+    private void filterQuestions(String searchText, Stage primaryStage, User user,
+                                 ComboBox<String> statusFilter,
+                                 ComboBox<Tags> tagFilter,
+                                 ComboBox<String> sortFilter) {
         postsContainer.getChildren().clear();
-        List<Question> filteredQuestions = new ArrayList<>();
 
         try {
-            List<Question> allQuestions = databaseHelper.getAllPublicQuestions();
-            String lowerCaseSearchText = searchText.trim().toLowerCase();
+            List<Question> questions = databaseHelper.getAllPublicQuestions();
+            String lowerCaseSearch = searchText.trim().toLowerCase();
 
-            if (lowerCaseSearchText.isEmpty()) {
-                filteredQuestions.addAll(allQuestions);
-            } else {
-                for (Question question : allQuestions) {
-                    if (question.getTitle().toLowerCase().contains(lowerCaseSearchText)) {
-                        filteredQuestions.add(question);
+            // search filter
+            questions.removeIf(q -> !q.getTitle().toLowerCase().contains(lowerCaseSearch));
+
+            // resolved/unresolved filter
+            if ("Resolved".equals(statusFilter.getValue())) {
+                questions.removeIf(q -> {
+                    try {
+                        return !databaseHelper.hasAcceptedAnswer(q.getQuestionId().toString());
+                    } catch (SQLException e) {
+                        return true;
                     }
-                }
+                });
+            } else if ("Unresolved".equals(statusFilter.getValue())) {
+                questions.removeIf(q -> {
+                    try {
+                        return databaseHelper.hasAcceptedAnswer(q.getQuestionId().toString());
+                    } catch (SQLException e) {
+                        return false;
+                    }
+                });
             }
 
-            if (filteredQuestions.isEmpty()) {
-                postsContainer.getChildren().add(new Label("No questions found."));
+            // tag filter
+            if (tagFilter.getValue() != null) {
+                questions.removeIf(q -> q.getTag() != tagFilter.getValue());
+            }
+
+            // sort filter
+            questions.sort((a, b) -> {
+                if ("Newest First".equals(sortFilter.getValue())) {
+                    return b.getCreationTimestamp().compareTo(a.getCreationTimestamp());
+                } else {
+                    return a.getCreationTimestamp().compareTo(b.getCreationTimestamp());
+                }
+            });
+
+            if (questions.isEmpty()) {
+                postsContainer.getChildren().add(new Label("No questions match your filters."));
             } else {
-                for (Question question : filteredQuestions) {
-                    postsContainer.getChildren().add(createQuestionSummaryNode(question, primaryStage, user));
+                for (Question q : questions) {
+                    postsContainer.getChildren().add(createQuestionSummaryNode(q, primaryStage, user));
                 }
             }
 
         } catch (SQLException e) {
-            e.printStackTrace();
-            postsContainer.getChildren().add(new Label("Error: Could not load questions from the database."));
+            postsContainer.getChildren().add(new Label("Error: Could not load questions."));
         }
     }
 
