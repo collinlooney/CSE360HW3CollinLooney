@@ -24,6 +24,8 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
 
 
@@ -209,7 +211,14 @@ public class DiscussionBoardView {
         summaryBox.setOnMouseExited(e -> summaryBox.setStyle(normalStyle));
 
         // Navigate to the detail view when clicked
-        summaryBox.setOnMouseClicked(e -> new QuestionDetailView(databaseHelper, adminFlag).show(primaryStage, user, question));
+        summaryBox.setOnMouseClicked(e -> {
+            try {
+                databaseHelper.updateLastViewed(user.getUserName(), question.getQuestionId().toString());
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+            new QuestionDetailView(databaseHelper, adminFlag).show(primaryStage, user, question);
+        });
 
         Label titleLabel = new Label(question.getTitle());
         titleLabel.setFont(Font.font("System", FontWeight.BOLD, 16));
@@ -223,26 +232,34 @@ public class DiscussionBoardView {
         tagLabel.setStyle("-fx-background-radius: 10; -fx-font-weight: 600;");
 
         // Tag Colors
+        String tagColor;
         switch (question.getTag()) {
             case GENERAL:
+                tagColor = "#6C63AC";
                 tagLabel.setStyle(tagLabel.getStyle() + "-fx-background-color: #6C63AC; -fx-text-fill: white;");
                 break;
             case HOMEWORK:
+                tagColor = "#EF7FAF";
                 tagLabel.setStyle(tagLabel.getStyle() + "-fx-background-color: #EF7FAF; -fx-text-fill: white;");
                 break;
             case TEAM_PROJECT:
+                tagColor = "#EC6A5C";
                 tagLabel.setStyle(tagLabel.getStyle() + "-fx-background-color: #EC6A5C; -fx-text-fill: white;");
                 break;
             case QUIZZES:
-                tagLabel.setStyle(tagLabel.getStyle() + "-fx-background-color: #F89963; -fx-text-fill: #1F2937;"); // dark gray
+                tagColor = "#F89963";
+                tagLabel.setStyle(tagLabel.getStyle() + "-fx-background-color: #F89963; -fx-text-fill: #1F2937;");
                 break;
             case EXAMS:
-                tagLabel.setStyle(tagLabel.getStyle() + "-fx-background-color: #F5C46D; -fx-text-fill: #1F2937;"); // dark gray
+                tagColor = "#F5C46D";
+                tagLabel.setStyle(tagLabel.getStyle() + "-fx-background-color: #F5C46D; -fx-text-fill: #1F2937;");
                 break;
             case TEAM_FORMATION:
-                tagLabel.setStyle(tagLabel.getStyle() + "-fx-background-color: #9BC48C; -fx-text-fill: #1F2937;"); // dark gray
+                tagColor = "#9BC48C";
+                tagLabel.setStyle(tagLabel.getStyle() + "-fx-background-color: #9BC48C; -fx-text-fill: #1F2937;");
                 break;
             default:
+                tagColor = "#6B7280";
                 tagLabel.setStyle(tagLabel.getStyle() + "-fx-background-color: #6B7280; -fx-text-fill: white;");
                 break;
         }
@@ -255,14 +272,32 @@ public class DiscussionBoardView {
         timeLabel.setTextFill(Color.GRAY);
 
         int answerCount = databaseHelper.getAnswerCountForQuestion(question.getQuestionId().toString());
-        Label answersLabel = new Label("• " + answerCount + (answerCount == 1 ? " answer" : " answers"));
-        answersLabel.setTextFill(Color.DARKBLUE);
+        int unseenCount = 0;
+
+        try {
+            unseenCount = databaseHelper.getUnseenAnswerCount(user.getUserName(), question.getQuestionId().toString());
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        // Combine answers and "new" count, coloring "new" based on tag
+        Text answersText = new Text("• " + answerCount + (answerCount == 1 ? " answer" : " answers"));
+        answersText.setFill(Color.web("#1F2937"));
+        
+        Text newText = new Text();
+        if (unseenCount > 0) {
+            newText = new Text(" (" + unseenCount + " new)");
+            newText.setFill(Color.web(tagColor));
+            newText.setStyle("-fx-font-weight: bold;");
+        }
+
+        TextFlow answersFlow = new TextFlow(answersText, newText);
+        answersFlow.setLineSpacing(0);
 
         // Resolution status label
         Label statusLabel = new Label();
         boolean resolved = false;
         try {
-            // Checks if any answer in DB is marked as resolving this question
             resolved = databaseHelper.hasAcceptedAnswer(question.getQuestionId().toString());
         } catch (SQLException e) {
             e.printStackTrace();
@@ -282,7 +317,7 @@ public class DiscussionBoardView {
         HBox headerRow = new HBox(10, titleLabel, statusLabel);
         headerRow.setAlignment(Pos.CENTER_LEFT);
 
-        metadataBox.getChildren().addAll(tagLabel, authorLabel, timeLabel, answersLabel);
+        metadataBox.getChildren().addAll(tagLabel, authorLabel, timeLabel, answersFlow);
         summaryBox.getChildren().addAll(headerRow, metadataBox);
 
         return summaryBox;
