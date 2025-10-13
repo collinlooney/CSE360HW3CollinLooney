@@ -1,6 +1,6 @@
 # CSE360 Team Project: Student Question And Answer System
 
-A desktop application built with JavaFX for student question and answer system. Phase 1 focuses on the administrative functionalities, including user setup, management of one-time passwords, invitation codes, and user profile updates and deletions. This project is part of the CSE360 course curriculum, demonstrating principles of software engineering and GUI development.
+A desktop application built with JavaFX for student question and answer system. Phase 2 focuses on student user stories, allowing users to create, read, update, and delete questions, answers, and comments in a persistent database-driven environment. This project is part of the CSE360 course curriculum, demonstrating principles of software engineering and GUI development.
 
 ## Table of Contents
 
@@ -15,15 +15,21 @@ A desktop application built with JavaFX for student question and answer system. 
 
 ## Description
 
-This application provides a graphical user interface (GUI) for a student-centric question and answer platform. The initial phase is centered on administrator capabilities, allowing for seamless management of the user. It features essential functions for user setup, secure access control through one-time passwords and invitation codes, and standard CRUD (Create, Read, Update, Delete) operations. 
+This application provides a graphical user interface (GUI) for a student-centric question and answer platform. This phase of the project is centered on the student experience, allowing for seamless interaction with a discussion board. It features a full suite of CRUD (Create, Read, Update, Delete) operations for questions, answers, and threaded comments, with user ownership permissions enforced. All data is persisted in a local H2 database.
 
 ## Key Features
 
-- **View Users**: Display a list of all users in a clear, tabular format.
-- **Add User**: A dedicated form to add a new user with details like user name, password, name, email and invitation code.
-- **Update User**: Select a user from the list to modify their role.
-- **Delete User**: Remove a user from the system with a confirmation prompt.
-- **Data Persistence**: User data is saved locally, ensuring it persists between application sessions.
+-   **Ask a New Question:** A dedicated form to create a new question with a title, detailed body, a relevant tag, and options for anonymous or private posting.
+-   **Discussion Board:** View a list of all public questions, sorted by most recent. Includes a real-time search bar to filter questions by title, tag, status, or ownership.
+-   **Detailed Question View:** A full view of a single question, its answers, and fully nested, threaded comments.
+-   **Full CRUD Functionality:**
+    -   **Questions:** Create, Read, Update, and Delete questions.
+    -   **Answers:** Create, Read, Update, and Delete answers.
+    -   **Comments:** Create, Read, Update, and Delete comments and replies.
+-   **Ownership Permissions:** "Edit" and "Delete" controls are only visible to the user who created the post, answer, or comment.
+-   **Question Resolution:** Mark an answer that resolves a question. 
+-   **Data Persistence:** All user, question, answer, and comment data is saved locally to an H2 database, ensuring it persists between application sessions.
+-   **Similar Threads Check:** An integrated feature to check for questions with similar titles before posting a new one.
 
 ## Technologies Used
 
@@ -75,15 +81,13 @@ Follow these steps to get a local copy up and running.
      1. Launch the application. The first time it runs, you will be prompted to setup initial Admin account. 
      2. Click "continue" button to open the account creation window.
      3. Fill in username and password and save the new Admin user. The application is now ready for use. 
- - **Standard Admin Functions**
+ - **Standard Functions**
      1. Run the application and login.
-     2. From the welcome screen, click continue as Admin.
-     3. Once on Admin homepage, you can perform several actions from the navigation bar located on top of the page.
-         - Generate Passwords: Select "One-Time Password" to create a temporary OTP for users.
-         - Generate Invitations: Select "Create Invitation" to generate a new invitation code.
-         - Manage Users: Select "List All Users" to view the user table. From this screen, you can:
-             - Select a user and click "Update User" to modify their role.
-             - Select a user and click "Delete User" to permanently remove them.
+     2. From the welcome screen, click continue as Admin or Basic User.
+     3. Once on homepage, you can either "Ask a New Question" or "Go to Discussion Board".
+        - **Ask a Question:** This view provides a form to create and post a new question. You can check for similar threads before posting.
+        - **Discussion Board:** This screen shows all public questions. You can use the search bar at the top to filter the list by title, tag, status or ownership. Click on any question to see its details.
+        - **Manage Your Content:** When viewing a question, if you are the author of the question, an answer, or a comment, you will see "Edit" and "Delete" buttons next to your content, allowing you to manage it. You can also mark an answer that answers your question. 
 
 ## Team Members
 
