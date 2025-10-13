@@ -20,7 +20,7 @@ This application provides a graphical user interface (GUI) for a student-centric
 ## Key Features
 
 -   **Ask a New Question:** A dedicated form to create a new question with a title, detailed body, a relevant tag, and options for anonymous or private posting.
--   **Discussion Board:** View a list of all public questions, sorted by most recent. Includes a real-time search bar to filter questions by title, tag, status, or ownership.
+-   **Discussion Board:** View a list of all public questions, sorted by most recent or oldest. Includes a real-time search bar to filter questions by title, tag, status, or ownership.
 -   **Detailed Question View:** A full view of a single question, its answers, and fully nested, threaded comments.
 -   **Full CRUD Functionality:**
     -   **Questions:** Create, Read, Update, and Delete questions.
