@@ -44,12 +44,12 @@ public class AnswerTest {
 	// Ensure answer fields store correctly.
 	@Test
 	public void constructor_wiresFields_andDefaults() {
-		Answer a = makeAnswer("Becasue...");
+		Answer a = makeAnswer("Because...");
 
 		// basic wiring
 		assertSame(q, a.getParentQuestion());
 		assertSame(author, a.getAuthor());
-		assertEquals("Becasue...", a.getBody());
+		assertEquals("Because...", a.getBody());
 		
 		// defaults
 		assertNotNull(a.getAnswerId());
@@ -75,7 +75,7 @@ public class AnswerTest {
         assertTrue(a.getComments().isEmpty());
 	}
 	
-	// 
+	// Ensures updating answer doesn't modify anything else including timestamp.
 	@Test
     public void setBody_updatesText_only() {
         Answer a = makeAnswer("first");
@@ -90,6 +90,7 @@ public class AnswerTest {
         assertEquals(resolves0, a.getResolvesQuestion());
     }
 	
+	// Ensures that answer objects remain independent.
 	@Test
 	public void answers_areIndependent() {
 	    Answer a1 = makeAnswer("x");
@@ -101,6 +102,7 @@ public class AnswerTest {
 	    assertEquals("y", a2.getBody());
 	}
 	
+	// Verifies adding comment to a list.
 	@Test
 	public void addComment_addsToList() {
 	    Answer a = makeAnswer("body");
@@ -113,6 +115,7 @@ public class AnswerTest {
 	    assertTrue(a.getComments().contains(c));
 	}
 	
+	// Comment constructor works correctly.
 	@Test
 	public void comment_onAnswer_wiresFields_defaults() {
 	    Answer a = makeAnswer("A");
@@ -126,6 +129,7 @@ public class AnswerTest {
 	    assertTrue(c.getReplies().isEmpty());
 	}
 	
+	// Adding comments has no affect on resolvesQuestion.
 	@Test
 	public void addComment_hasNoSideEffectsOnResolves() {
 	    Answer a = makeAnswer("body");
@@ -135,7 +139,6 @@ public class AnswerTest {
 
 	    assertEquals(before, a.getResolvesQuestion());
 	}
-    
     
 }
 
