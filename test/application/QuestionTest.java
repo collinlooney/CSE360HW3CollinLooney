@@ -46,6 +46,7 @@ public class QuestionTest {
         assertEquals(Tags.HOMEWORK, q.getTag());
         assertFalse(q.isPrivate());
         assertFalse(q.isAnonymous());
+        assertFalse(q.isResolved());
 
         // defaults
         assertEquals(QuestionStatus.OPEN, q.getStatus());
@@ -202,12 +203,9 @@ public class QuestionTest {
         q.acceptAnswer(a1);
         ZonedDateTime t1 = q.getLastModifiedTimestamp();
 
-        q.acceptAnswer(a2); // switch
+        q.acceptAnswer(a2); // switch with answer is accepted
         assertSame(a2, q.getAcceptedAnswer());
         assertEquals(QuestionStatus.RESOLVED, q.getStatus());
         assertFalse(q.getLastModifiedTimestamp().isBefore(t1));
-    }
-
-
-    
+    }    
 }
