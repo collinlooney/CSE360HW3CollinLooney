@@ -459,7 +459,7 @@ public class QuestionDetailView {
     }
 
     private void handleDeleteAnswerAction(Stage primaryStage, User user, Question question, Answer answer) {
-    	if (!Authorization.canDeleteQuestion(user, databaseHelper, question, adminFlag)) {
+    	if (!Authorization.canDeleteAnswer(user, databaseHelper, answer, adminFlag)) {
         	new Alert(Alert.AlertType.ERROR, "You do not have permission to delete this answer.").showAndWait();
         	return;
         }
@@ -481,7 +481,7 @@ public class QuestionDetailView {
     }
 
     private void handleDeleteCommentAction(Stage primaryStage, User user, Question question, Comment comment) {
-    	if (!Authorization.canDeleteQuestion(user, databaseHelper, question, adminFlag)) {
+    	if (!Authorization.canDeleteComment(user, databaseHelper, comment, adminFlag)) {
         	new Alert(Alert.AlertType.ERROR, "You do not have permission to delete this comment.").showAndWait();
         	return;
         }
