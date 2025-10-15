@@ -98,6 +98,6 @@ Follow these steps to get a local copy up and running.
 - Member 5 - Kina Mastin
 
 ## Team Meetings and Screencast
-- [Team meetings](https://www.youtube.com/watch?v=EuN8Z_lvM0Y&list=PLPcqD2yBTRr5Wu3NotjXVF_bKaBzEBkk9)
-- [Screencast 1](https://youtu.be/VNmg4j8X3kE)
-- [Screencast 2](https://youtu.be/bYZHyjCWrDo)
+- [Team meetings](https://www.youtube.com/watch?v=WlOFng35u5g&list=PLPcqD2yBTRr6IECxFj_BAlHbjP4D3Kq8P)
+- [Screencast 1](https://www.youtube.com/watch?v=e8VXsuRtLyI)
+- [Screencast 2](https://www.youtube.com/watch?v=bppNQi06FkY)
