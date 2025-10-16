@@ -99,5 +99,6 @@ Follow these steps to get a local copy up and running.
 
 ## Team Meetings and Screencast
 - [Team meetings](https://www.youtube.com/watch?v=WlOFng35u5g&list=PLPcqD2yBTRr6IECxFj_BAlHbjP4D3Kq8P)
-- [Screencast 1](https://www.youtube.com/watch?v=e8VXsuRtLyI)
-- [Screencast 2](https://www.youtube.com/watch?v=bppNQi06FkY)
+- [Automated testing](https://youtu.be/gYVUaiTCSkE)
+- [Screencast 1]((https://youtu.be/Z1n3i-W1e7k))
+- [Screencast 2](https://youtu.be/mMjdAe8bxJY)
