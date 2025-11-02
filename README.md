@@ -1,106 +1,112 @@
-# CSE360 Team Project: Student Question And Answer System
+# CSE360 HW03: Student Question and Answer System
 
-A desktop application built with JavaFX for student question and answer system. Phase 2 focuses on student user stories, allowing users to create, read, update, and delete questions, answers, and comments in a persistent database-driven environment. This project is part of the CSE360 course curriculum, demonstrating principles of software engineering and GUI development.
+A JavaFX desktop application for a student Q&A system. HW03 (individual) extends prior work with automated testing and a clearer modular setup.
 
 ## Table of Contents
-
 - [Description](#description)
 - [Key Features](#key-features)
 - [Technologies Used](#technologies-used)
 - [Prerequisites](#prerequisites)
 - [Getting Started](#getting-started)
 - [Usage](#usage)
-- [Team Members](#team-members)
-- [Team Meetings and Screencast](#team-meetings-and-Screencast)
+- [Automated Testing](#automated-testing)
+- [Repository Structure](#repository-structure)
+- [Author](#author)
 
 ## Description
-
-This application provides a graphical user interface (GUI) for a student-centric question and answer platform. This phase of the project is centered on the student experience, allowing for seamless interaction with a discussion board. It features a full suite of CRUD (Create, Read, Update, Delete) operations for questions, answers, and threaded comments, with user ownership permissions enforced. All data is persisted in a local H2 database.
+This app provides a GUI where students can post questions, answers, and comments. HW03 focuses on test-driven development and validation using JUnit. Tests cover authorization logic and core workflows.
 
 ## Key Features
-
--   **Ask a New Question:** A dedicated form to create a new question with a title, detailed body, a relevant tag, and options for anonymous or private posting.
--   **Discussion Board:** View a list of all public questions, sorted by most recent or oldest. Includes a real-time search bar to filter questions by title, tag, status, or ownership.
--   **Detailed Question View:** A full view of a single question, its answers, and fully nested, threaded comments.
--   **Full CRUD Functionality:**
-    -   **Questions:** Create, Read, Update, and Delete questions.
-    -   **Answers:** Create, Read, Update, and Delete answers.
-    -   **Comments:** Create, Read, Update, and Delete comments and replies.
--   **Ownership Permissions:** "Edit" and "Delete" controls are only visible to the user who created the post, answer, or comment.
--   **Question Resolution:** Mark an answer that resolves a question. 
--   **Data Persistence:** All user, question, answer, and comment data is saved locally to an H2 database, ensuring it persists between application sessions.
--   **Similar Threads Check:** An integrated feature to check for questions with similar titles before posting a new one.
+- Full CRUD for questions, answers, and comments
+- Ownership enforcement (only authors can edit/delete their content)
+- Threaded discussion and “accepted answer” resolution
+- H2 embedded database persistence
+- JUnit 4 tests for authorization and workflows
 
 ## Technologies Used
-
-- **Core Language**: [Java](https://www.java.com/en/)
-- **GUI Frameword**: [JavaFX](https://openjfx.io/)
-- **IDE**: [Eclipse IDE](https://www.eclipse.org/topics/ide/)
+- Java, JavaFX
+- H2 (embedded DB)
+- JUnit 4
+- Eclipse IDE
 
 ## Prerequisites
-
-Before you begin, ensure you have the following installed on your system:
-
-- [Java Development Kit (JDK)](https://www.oracle.com/java/technologies/javase-downloads.html) 11 or later.
-- [JavaFX SDK](https://openjfx.io/openjfx-docs/) 11 or later.
-- [IDE: Eclipse IDE for Java Developers ](https://www.eclipse.org/ide/) is recommended, as it was used for the project's development. 
-
+Install:
+- JDK 11 or later
+- JavaFX SDK 11+ (path to its `lib` folder)
+- Eclipse IDE for Java Developers
+- (Optional) H2 jar added to the build path if not already present
 
 ## Getting Started
 
-Follow these steps to get a local copy up and running.
-
-1.  **Clone the repository:**
-    ```sh
-    git clone https://github.com/fluxdiv/cse360_team_project.git
-    cd cse360_team_project
+1. **Clone the repository**
+    
+    ```bash
+    git clone https://github.com/collinlooney/CSE360HW3CollinLooney.git
+    cd CSE360HW3CollinLooney
     ```
 
-2.  **Configure IDE (Eclipse):**
-    - Launch Eclipse and select File > Import.
-    - Choose General > Existing Projects into Workspace and click Next.
-    - Browse to the directory where you cloned the repository and click Finish.
-    - Configure the JavaFX:
-        - Right-click on the project in the Package Explorer and select Properties.
-        - Navigate to Java Build Path > Libraries.
-        - Click on Classpath and then Add External JARs...
-        - Select all the JAR files located in the lib folder of your JavaFX SDK installation.
+2. **Import into Eclipse**
+    - Open Eclipse
+    - Go to **File → Import → Existing Projects into Workspace**
+    - Browse to the cloned directory
+    - Select the project and click **Finish**
 
-3.  **Setup Run Configurations:**
-    - Go to Run > Run Configurations...
-    - Select StartCSE360 under Java Application.
-    - Go to the Arguments tab.
-    - In the VM arguments text box, add the following line, replacing `/path/to/your/javafx-sdk/` with the actual path to your JavaFX SDK `lib` folder:
-        ```
-        --module-path /path/to/your/javafx-sdk/lib --add-modules javafx.controls,javafx.fxml
-        ```
-    - Click Apply and then Run.
+3. **Configure JavaFX on the Build Path**
+    - Right-click the project → **Properties → Java Build Path → Libraries**
+    - Click **Add External JARs…** and select all jars from your JavaFX SDK `lib` folder
+    - If using modules (`module-info.java` present), make sure it includes:
+      
+      ```java
+      requires javafx.controls;
+      requires javafx.fxml;
+      requires javafx.graphics;
+      requires java.sql;
+      requires com.h2database;
+
+      opens application to javafx.fxml, javafx.graphics;
+      exports application;
+      ```
+
+4. **Set Run Configuration (VM args)**
+    - **Run → Run Configurations… → Java Application**
+    - Main class: `application.StartCSE360`
+    - In **VM arguments**, add (replace with your JavaFX path):
+      
+      ```
+      --module-path "C:\path\to\javafx-sdk\lib" --add-modules javafx.controls,javafx.fxml
+      ```
+    - Click **Apply → Run**
 
 ## Usage
- - **First-Time Admin Setup**
-     1. Launch the application. The first time it runs, you will be prompted to setup initial Admin account. 
-     2. Click "continue" button to open the account creation window.
-     3. Fill in username and password and save the new Admin user. The application is now ready for use. 
- - **Standard Functions**
-     1. Run the application and login.
-     2. From the welcome screen, click continue as Admin or Basic User.
-     3. Once on homepage, you can either "Ask a New Question" or "Go to Discussion Board".
-        - **Ask a Question:** This view provides a form to create and post a new question. You can check for similar threads before posting.
-        - **Discussion Board:** This screen shows all public questions. You can use the search bar at the top to filter the list by title, tag, status or ownership. Click on any question to see its details.
-        - **Manage Your Content:** When viewing a question, if you are the author of the question, an answer, or a comment, you will see "Edit" and "Delete" buttons next to your content, allowing you to manage it. You can also mark an answer that answers your question. 
+1. On first launch, create the initial Admin account.
+2. Log in as Admin or a standard user.
+3. Use the main menu to:
+   - Ask a Question
+   - Browse the Discussion Board (search/filter)
+   - Edit/Delete your own posts
+   - Mark an answer as accepted to resolve a question
 
-## Team Members
+## Automated Testing
+JUnit 4 tests verify key behavior.
 
-- Member 1 - Ashenafi Teressa
-- Member 2 - Collin Looney
-- Member 3 - Jack Pozywio
-- Member 4 - Jonathan Waterway
-- Member 5 - Kina Mastin
+| Test Class | Purpose |
+| --- | --- |
+| `AuthorizationTest` | Verifies login, roles, and permission checks |
+| `AuthorizationTestingAutomation` | Automates a sequence of authorization tests |
+| `package-info.java` | Package documentation and structure |
 
-## Team Meetings and Screencast
-- [Team meetings](https://www.youtube.com/watch?v=WlOFng35u5g&list=PLPcqD2yBTRr6IECxFj_BAlHbjP4D3Kq8P)
-- [Automated testing](https://youtu.be/X6eE3CANRPU)
-- [Screencast 1](https://youtu.be/Z1n3i-W1e7k)
-- [Screencast 2](https://youtu.be/mMjdAe8bxJY)
+Run tests in Eclipse:
+- Right-click `test/application` → **Run As → JUnit Test**
+- View results in the **JUnit** tool window
+
+
+## Author
+**Collin Looney**  
+CSE 360 — HW03 (Individual) — Fall 2025
+
+##  Screencast
+- [Screencast](https://www.youtube.com/watch?v=uHHK8eI66xk)
+
+
 
 
